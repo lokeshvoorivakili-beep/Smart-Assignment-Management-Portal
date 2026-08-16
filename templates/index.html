@@ -369,40 +369,37 @@
     <form id="form-create-assignment" onsubmit="handleCreateAssignment(event)">
       <div class="form-card">
         <h3>Assignment Details</h3>
-        <div class="form-group">
-          <label>Subject</label>
-          <select id="create-subject" required>
-            <option value="">— Select Subject —</option>
-            <option value="AI">AI (Artificial Intelligence)</option>
-            <option value="Python">Python Programming</option>
-            <option value="Java">Java Programming</option>
-            <option value="ADSAA">ADSAA (Algorithms & Data Structures)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Title</label>
-          <input type="text" id="create-title" placeholder="e.g. A* Search Algorithm — 8-Puzzle Problem" required />
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea id="create-desc" rows="4" placeholder="Describe the assignment task, requirements, and expected deliverables…" style="resize:vertical;" required></textarea>
-        </div>
         <div class="form-row">
           <div class="form-group">
             <label>Department Target</label>
-            <select id="create-dept" required>
+            <select id="create-dept" onchange="updateCreateSubjectDropdown()" required>
               <!-- Loaded via API -->
             </select>
           </div>
           <div class="form-group">
             <label>Year Target</label>
-            <select id="create-year" required>
+            <select id="create-year" onchange="updateCreateSubjectDropdown()" required>
               <option value="1">Year 1</option>
               <option value="2">Year 2</option>
               <option value="3" selected>Year 3</option>
               <option value="4">Year 4</option>
             </select>
           </div>
+        </div>
+        <div class="form-group">
+          <label>Subject (JNTUA R23 Curriculum)</label>
+          <select id="create-subject" onchange="handleSubjectSelectChange(this)" required>
+            <option value="">— Select Department & Year to Load Subjects —</option>
+          </select>
+          <input type="text" id="create-custom-subject" placeholder="Type custom subject name…" style="display:none;margin-top:8px;" />
+        </div>
+        <div class="form-group">
+          <label>Assignment Title</label>
+          <input type="text" id="create-title" placeholder="e.g. AVL Tree Implementation & Analysis" required />
+        </div>
+        <div class="form-group">
+          <label>Description & Instructions</label>
+          <textarea id="create-desc" rows="4" placeholder="Describe the assignment task, requirements, and expected deliverables…" style="resize:vertical;" required></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">

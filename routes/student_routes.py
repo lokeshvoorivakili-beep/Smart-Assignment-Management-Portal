@@ -9,6 +9,19 @@ from utils.similarity import compute_submission_similarity
 
 student_bp = Blueprint('student', __name__)
 
+def format_dt(val, fmt='%b %d, %I:%M %p'):
+    if not val:
+        return None
+    if hasattr(val, 'strftime'):
+        return val.strftime(fmt)
+    if isinstance(val, str):
+        try:
+            dt_obj = datetime.strptime(val.split('.')[0], '%Y-%m-%d %H:%M:%S')
+            return dt_obj.strftime(fmt)
+        except Exception:
+            return val
+    return str(val)
+
 @student_bp.route('/api/student/assignments', methods=['GET'])
 @login_required(role='student')
 def get_student_assignments():
@@ -62,7 +75,7 @@ def get_student_assignments():
             'submission': {
                 'submitted': bool(a['submission_id']),
                 'submission_id': a['submission_id'],
-                'submitted_at': a['submitted_at'].strftime('%b %d, %I:%M %p') if a['submitted_at'] else None,
+                'submitted_at': format_dt(a['submitted_at']),
                 'status': a['submission_status'],
                 'marks': a['marks'],
                 'feedback': a['feedback']
@@ -118,7 +131,7 @@ def get_assignment_detail(assignment_id):
             'submission': {
                 'submission_id': assignment['submission_id'],
                 'filename': assignment['original_filename'],
-                'submitted_at': assignment['submitted_at'].strftime('%b %d, %I:%M %p') if assignment['submitted_at'] else None,
+                'submitted_at': format_dt(assignment['submitted_at']),
                 'status': assignment['submission_status'],
                 'marks': assignment['marks'],
                 'feedback': assignment['feedback']
@@ -242,7 +255,7 @@ def get_student_grades():
             'marks': item['marks'],
             'feedback': item['feedback'],
             'faculty_name': f"{item['faculty_first']} {item['faculty_last']}",
-            'graded_at': item['graded_at'].strftime('%b %d, %Y') if item['graded_at'] else 'Recently'
+            'graded_at': format_dt(item['graded_at'], '%b %d, %Y') or 'Recently'
         })
 
     return jsonify({'success': True, 'grades': result})

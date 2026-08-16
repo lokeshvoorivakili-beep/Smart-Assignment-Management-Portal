@@ -205,11 +205,13 @@ def init_db():
 def seed_db():
     """Seeds initial departments, admin account, test student, test faculty, and sample assignments."""
     depts = [
-        ('CSE', 'Computer Science and Engineering'),
-        ('ECE', 'Electronics and Communication Engineering'),
-        ('EEE', 'Electrical and Electronics Engineering'),
-        ('CIVIL', 'Civil Engineering'),
-        ('MECH', 'Mechanical Engineering')
+        ('CSE', 'Computer Science & Engineering'),
+        ('AIML', 'CSE (AI & ML)'),
+        ('DS', 'CSE (Data Science)'),
+        ('ECE', 'Electronics & Communication Engineering'),
+        ('EEE', 'Electrical & Electronics Engineering'),
+        ('MECH', 'Mechanical Engineering'),
+        ('CIVIL', 'Civil Engineering')
     ]
     for code, name in depts:
         existing = DB.query("SELECT * FROM departments WHERE code = %s", (code,), one=True)

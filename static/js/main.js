@@ -20,6 +20,22 @@ function showScreen(id) {
         target.classList.add('active');
         window.scrollTo(0, 0);
     }
+    if (id === 'screen-faculty-create') {
+        const deadlineInput = document.getElementById('create-deadline');
+        if (deadlineInput) {
+            const now = new Date();
+            const minNow = new Date(now);
+            minNow.setMinutes(minNow.getMinutes() - minNow.getTimezoneOffset());
+            deadlineInput.min = minNow.toISOString().slice(0, 16);
+
+            if (!deadlineInput.value) {
+                const future = new Date(now);
+                future.setDate(future.getDate() + 7);
+                future.setMinutes(future.getMinutes() - future.getTimezoneOffset());
+                deadlineInput.value = future.toISOString().slice(0, 16);
+            }
+        }
+    }
 }
 
 function switchAuthTab(el, panelId) {
@@ -39,6 +55,185 @@ function switchTab(el, panelId) {
     if (panel) panel.classList.add('active');
 }
 
+/* JNTUA R23 B.Tech Subjects Data Map for 7 Branches */
+const JNTUA_R23_SUBJECTS = {
+  'CSE': {
+    '1': [
+      "Communicative English", "Linear Algebra & Calculus", "Engineering Physics",
+      "Basic Civil & Mechanical Engineering", "Introduction to Programming", "Chemistry",
+      "Differential Equations & Vector Calculus", "Basic Electrical & Electronics Engineering",
+      "Data Structures", "Engineering Graphics"
+    ],
+    '2': [
+      "Discrete Mathematics & Graph Theory", "Digital Logic Design", "Computer Organization & Architecture",
+      "Object Oriented Programming through Java", "Universal Human Values", "Database Management Systems",
+      "Design and Analysis of Algorithms", "Operating Systems", "Software Engineering",
+      "Managerial Economics & Financial Analysis"
+    ],
+    '3': [
+      "Computer Networks", "Formal Languages and Automata Theory", "Artificial Intelligence",
+      "Cloud Computing", "Software Testing", "Advanced Data Structures", "Compiler Design",
+      "Machine Learning", "Cryptography and Network Security", "Full Stack Web Development",
+      "Mobile Application Development", "DevOps"
+    ],
+    '4': [
+      "Big Data Analytics", "Deep Learning", "Internet of Things", "Natural Language Processing",
+      "Cyber Security", "Blockchain Technology", "High Performance Computing", "Generative AI",
+      "Reinforcement Learning"
+    ]
+  },
+  'AIML': {
+    '1': [
+      "Communicative English", "Linear Algebra & Calculus", "Engineering Physics",
+      "Basic Civil & Mechanical Engineering", "Introduction to Programming", "Chemistry",
+      "Differential Equations & Vector Calculus", "Basic Electrical & Electronics Engineering",
+      "Data Structures", "Engineering Graphics"
+    ],
+    '2': [
+      "Mathematical Foundations of Computer Science", "Digital Logic Design", "Computer Organization & Architecture",
+      "Object Oriented Programming through Java", "Universal Human Values", "Database Management Systems",
+      "Design and Analysis of Algorithms", "Operating Systems", "Artificial Intelligence Concepts & Logic",
+      "Managerial Economics & Financial Analysis"
+    ],
+    '3': [
+      "Computer Networks", "Machine Learning Techniques", "Knowledge Representation and Reasoning",
+      "Computer Vision", "Optimization Techniques", "Pattern Recognition", "Deep Learning Architecture",
+      "Natural Language Processing", "Reinforcement Learning", "AI in Healthcare", "Speech & Audio Processing"
+    ],
+    '4': [
+      "Big Data Analytics for AI", "Generative AI", "AI Ethics & Governance", "Soft Computing",
+      "AI in Robotics", "Autonomous Systems", "Neural Networks", "Explainable AI", "MLOps"
+    ]
+  },
+  'DS': {
+    '1': [
+      "Communicative English", "Linear Algebra & Calculus", "Engineering Physics",
+      "Basic Civil & Mechanical Engineering", "Introduction to Programming", "Chemistry",
+      "Differential Equations & Vector Calculus", "Basic Electrical & Electronics Engineering",
+      "Data Structures", "Engineering Graphics"
+    ],
+    '2': [
+      "Probability & Statistics for Data Science", "Digital Logic Design", "Computer Organization & Architecture",
+      "Object Oriented Programming through Java", "Universal Human Values", "Database Management Systems",
+      "Design and Analysis of Algorithms", "Operating Systems", "Principles of Data Science",
+      "Managerial Economics & Financial Analysis"
+    ],
+    '3': [
+      "Computer Networks", "Data Mining and Data Warehousing", "Machine Learning for Data Science",
+      "R Programming for Data Analytics", "Exploratory Data Analysis", "NoSQL Databases",
+      "Big Data Analytics", "Predictive Analytics", "Data Visualization Techniques",
+      "Time Series Analysis", "Business Intelligence"
+    ],
+    '4': [
+      "Deep Learning for Analytics", "Cloud Data Analytics", "Social Media Analytics",
+      "Data Security and Privacy", "Natural Language Processing", "Stream Analytics",
+      "Text Mining", "Web Analytics", "Financial Data Analytics"
+    ]
+  },
+  'ECE': {
+    '1': [
+      "Communicative English", "Linear Algebra & Calculus", "Chemistry",
+      "Basic Electrical & Electronics Engineering", "Introduction to Programming", "Engineering Physics",
+      "Differential Equations & Vector Calculus", "Basic Civil & Mechanical Engineering",
+      "Data Structures", "Engineering Graphics"
+    ],
+    '2': [
+      "Electronic Devices and Circuits", "Network Analysis & Synthesis", "Signals and Systems",
+      "Digital Logic Design", "Universal Human Values", "Analog Circuits",
+      "Electromagnetic Waves and Transmission Lines", "Control Systems", "Probability Theory & Stochastic Processes",
+      "Managerial Economics & Financial Analysis"
+    ],
+    '3': [
+      "Digital Signal Processing", "Analog & Digital Communications", "Microprocessors and Microcontrollers",
+      "VLSI Design", "Antennas & Wave Propagation", "Linear IC Applications", "Microwave Engineering",
+      "Computer Networks", "Embedded Systems", "Digital Image Processing", "Optical Communications"
+    ],
+    '4': [
+      "Wireless & Mobile Communications", "Cellular & Mobile Communications", "RF Circuit Design",
+      "Satellite Communications", "Radar Engineering", "Internet of Things", "Information Theory and Coding",
+      "System on Chip", "5G Wireless Technology"
+    ]
+  },
+  'EEE': {
+    '1': [
+      "Communicative English", "Linear Algebra & Calculus", "Chemistry",
+      "Basic Electrical & Electronics Engineering", "Introduction to Programming", "Engineering Physics",
+      "Differential Equations & Vector Calculus", "Basic Civil & Mechanical Engineering",
+      "Data Structures", "Engineering Graphics"
+    ],
+    '2': [
+      "Electrical Circuit Analysis", "DC Machines and Transformers", "Electromagnetic Fields",
+      "Electronic Devices and Circuits", "Universal Human Values", "AC Machines",
+      "Power System Generation and Transmission", "Control Systems", "Analog Electronics",
+      "Managerial Economics & Financial Analysis"
+    ],
+    '3': [
+      "Power Electronics", "Power System Analysis", "Microprocessors and Microcontrollers",
+      "Electrical Measurements & Instrumentation", "Signals and Systems", "Linear System Theory",
+      "Power System Protection and Switchgear", "Electric Drives and Control", "Digital Signal Processing",
+      "Special Electrical Machines", "Power Quality"
+    ],
+    '4': [
+      "High Voltage Engineering", "Renewable Energy Sources", "Smart Grid Technologies",
+      "Flexible AC Transmission Systems", "Electric Vehicles", "HVDC Transmission",
+      "Energy Management & Audit", "Microgrid Systems"
+    ]
+  },
+  'MECH': {
+    '1': [
+      "Communicative English", "Linear Algebra & Calculus", "Engineering Physics",
+      "Basic Civil & Mechanical Engineering", "Introduction to Programming", "Chemistry",
+      "Differential Equations & Vector Calculus", "Basic Electrical & Electronics Engineering",
+      "Engineering Graphics", "Engineering Mechanics"
+    ],
+    '2': [
+      "Thermodynamics", "Mechanics of Solids", "Material Science and Metallurgy",
+      "Manufacturing Processes", "Universal Human Values", "Applied Thermodynamics",
+      "Fluid Mechanics and Hydraulic Machines", "Kinematics of Machinery",
+      "Machine Drawing & Computer Aided Drafting", "Managerial Economics & Financial Analysis"
+    ],
+    '3': [
+      "Dynamics of Machinery", "Heat Transfer", "Design of Machine Members - I",
+      "Industrial Engineering & Management", "Metrology & Instrumentation", "Production Technology",
+      "Design of Machine Members - II", "Machining & Machine Tools", "Operations Research",
+      "CAD/CAM", "IC Engines", "Refrigeration and Air Conditioning"
+    ],
+    '4': [
+      "Finite Element Methods", "Automation in Manufacturing", "Robotics & Mechatronics",
+      "Automobile Engineering", "Additive Manufacturing", "Computational Fluid Dynamics",
+      "Power Plant Engineering", "Tribology"
+    ]
+  },
+  'CIVIL': {
+    '1': [
+      "Communicative English", "Linear Algebra & Calculus", "Engineering Physics",
+      "Basic Civil & Mechanical Engineering", "Introduction to Programming", "Chemistry",
+      "Differential Equations & Vector Calculus", "Basic Electrical & Electronics Engineering",
+      "Engineering Graphics", "Engineering Mechanics"
+    ],
+    '2': [
+      "Surveying and Geomatics", "Strength of Materials - I", "Fluid Mechanics",
+      "Building Materials and Construction", "Universal Human Values", "Strength of Materials - II",
+      "Hydraulics and Hydraulic Machinery", "Structural Analysis - I", "Environmental Engineering - I",
+      "Managerial Economics & Financial Analysis"
+    ],
+    '3': [
+      "Structural Analysis - II", "Concrete Technology", "Design of Reinforced Concrete Structures",
+      "Geotechnical Engineering - I", "Transportation Engineering - I", "Water Resources Engineering - I",
+      "Geotechnical Engineering - II", "Transportation Engineering - II", "Design of Steel Structures",
+      "Remote Sensing and GIS", "Advanced Structural Analysis"
+    ],
+    '4': [
+      "Estimation, Costing and Valuation", "Construction Technology and Project Management",
+      "Pavement Analysis & Design", "Ground Improvement Techniques", "Irrigation Engineering",
+      "Bridge Engineering", "Earthquake Resistant Design of Structures", "Solid Waste Management",
+      "Pre-stressed Concrete"
+    ]
+  }
+};
+
+let departmentCodeMap = {};
+
 /* ── DEPARTMENTS LOADER ── */
 async function loadDepartments() {
     try {
@@ -51,15 +246,57 @@ async function loadDepartments() {
 
             let html = '<option value="">— Select Department —</option>';
             data.departments.forEach(d => {
+                departmentCodeMap[d.department_id] = d.code;
                 html += `<option value="${d.department_id}">${d.code} - ${d.department_name}</option>`;
             });
 
             if (studentSelect) studentSelect.innerHTML = html;
             if (facultySelect) facultySelect.innerHTML = html;
-            if (createDeptSelect) createDeptSelect.innerHTML = html;
+            if (createDeptSelect) {
+                createDeptSelect.innerHTML = html;
+                updateCreateSubjectDropdown();
+            }
         }
     } catch (e) {
         console.error("Failed to load departments", e);
+    }
+}
+
+function updateCreateSubjectDropdown() {
+    const deptSelect = document.getElementById('create-dept');
+    const yearSelect = document.getElementById('create-year');
+    const subjectSelect = document.getElementById('create-subject');
+    const customInput = document.getElementById('create-custom-subject');
+
+    if (!subjectSelect) return;
+
+    const deptId = deptSelect ? deptSelect.value : '';
+    const year = yearSelect ? yearSelect.value : '3';
+    const deptCode = departmentCodeMap[deptId] || 'CSE';
+
+    const subjects = (JNTUA_R23_SUBJECTS[deptCode] && JNTUA_R23_SUBJECTS[deptCode][year]) 
+                     ? JNTUA_R23_SUBJECTS[deptCode][year] 
+                     : (JNTUA_R23_SUBJECTS['CSE'][year] || []);
+
+    let html = '<option value="">— Select JNTUA R23 Subject —</option>';
+    subjects.forEach(sub => {
+        html += `<option value="${sub}">${sub}</option>`;
+    });
+    html += '<option value="__custom__">+ Type Custom Subject Name...</option>';
+
+    subjectSelect.innerHTML = html;
+    if (customInput) customInput.style.display = 'none';
+}
+
+function handleSubjectSelectChange(select) {
+    const customInput = document.getElementById('create-custom-subject');
+    if (customInput) {
+        if (select.value === '__custom__') {
+            customInput.style.display = 'block';
+            customInput.focus();
+        } else {
+            customInput.style.display = 'none';
+        }
     }
 }
 
@@ -511,8 +748,17 @@ function fileSelectedFaculty(input) {
 
 async function handleCreateAssignment(e) {
     e.preventDefault();
+    let subjectVal = document.getElementById('create-subject').value;
+    if (subjectVal === '__custom__') {
+        subjectVal = document.getElementById('create-custom-subject').value.trim();
+    }
+    if (!subjectVal) {
+        showToast('Please select or type a subject name.');
+        return;
+    }
+
     const formData = new FormData();
-    formData.append('subject', document.getElementById('create-subject').value);
+    formData.append('subject', subjectVal);
     formData.append('title', document.getElementById('create-title').value.trim());
     formData.append('description', document.getElementById('create-desc').value.trim());
     formData.append('department_id', document.getElementById('create-dept').value);

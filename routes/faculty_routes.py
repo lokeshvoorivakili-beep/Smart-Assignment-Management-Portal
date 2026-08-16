@@ -8,6 +8,19 @@ from utils.file_utils import allowed_file, save_uploaded_file
 
 faculty_bp = Blueprint('faculty', __name__)
 
+def format_dt(val, fmt='%b %d, %I:%M %p'):
+    if not val:
+        return ''
+    if hasattr(val, 'strftime'):
+        return val.strftime(fmt)
+    if isinstance(val, str):
+        try:
+            dt_obj = datetime.strptime(val.split('.')[0], '%Y-%m-%d %H:%M:%S')
+            return dt_obj.strftime(fmt)
+        except Exception:
+            return val
+    return str(val)
+
 @faculty_bp.route('/api/faculty/assignments', methods=['GET'])
 @login_required(role='faculty')
 def get_faculty_assignments():
@@ -82,9 +95,22 @@ def create_assignment():
             instruction_file = unique_filename
 
     # Standardize deadline format (YYYY-MM-DD HH:MM:SS)
-    deadline_formatted = deadline.replace('T', ' ')
-    if len(deadline_formatted) == 16: # e.g. 2026-08-30 18:00
-        deadline_formatted += ':00'
+    deadline_clean = deadline.replace('T', ' ').strip()
+    if len(deadline_clean) == 16:
+        deadline_clean += ':00'
+    elif len(deadline_clean) > 19:
+        deadline_clean = deadline_clean[:19]
+
+    # Validate deadline date format and ensure it is in the future
+    try:
+        deadline_dt = datetime.strptime(deadline_clean, '%Y-%m-%d %H:%M:%S')
+    except ValueError:
+        return jsonify({'success': False, 'message': 'Invalid deadline date format. Please select a valid date and time.'}), 400
+
+    if deadline_dt <= datetime.now():
+        return jsonify({'success': False, 'message': 'Deadline date must be in the future. Please select a future date and time.'}), 400
+
+    deadline_formatted = deadline_dt.strftime('%Y-%m-%d %H:%M:%S')
 
     assignment_id = DB.execute("""
         INSERT INTO assignments (faculty_id, department_id, year, section, subject, title, description, instruction_file, deadline, maximum_marks)
@@ -137,7 +163,7 @@ def get_assignment_submissions(assignment_id):
             'email': s['email'],
             'original_filename': s['original_filename'],
             'uploaded_file': s['uploaded_file'],
-            'submitted_at': s['submitted_at'].strftime('%b %d, %I:%M %p') if s['submitted_at'] else '',
+            'submitted_at': format_dt(s['submitted_at']),
             'marks': s['marks'],
             'feedback': s['feedback'],
             'similarity_score': s['similarity_score'],
@@ -230,7 +256,7 @@ def get_similarity_alerts():
             'student_name': f"{alert['first_name']} {alert['last_name']}",
             'hall_ticket_no': alert['hall_ticket_no'],
             'similarity_score': alert['similarity_score'],
-            'submitted_at': alert['submitted_at'].strftime('%b %d, %I:%M %p') if alert['submitted_at'] else ''
+            'submitted_at': format_dt(alert['submitted_at'])
         })
 
     return jsonify({'success': True, 'alerts': result})
