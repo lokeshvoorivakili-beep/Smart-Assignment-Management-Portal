@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: smart-assignment-management-portal
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: MYSQL_HOST
+        value: 127.0.0.1
+      - key: MYSQL_USER
+        value: root
+      - key: MYSQL_PASSWORD
+        value: ""
+      - key: MYSQL_DB
+        value: smart_assignment_portal
