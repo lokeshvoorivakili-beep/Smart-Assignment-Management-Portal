@@ -93,6 +93,8 @@ def create_assignment():
         if allowed_file(file.filename):
             unique_filename, _ = save_uploaded_file(file, Config.ASSIGNMENT_UPLOADS)
             instruction_file = unique_filename
+        else:
+            return jsonify({'success': False, 'message': 'Uploaded file extension not allowed. Please attach a valid PDF, DOCX, PPTX, Image, TXT, or ZIP file.'}), 400
 
     # Standardize deadline format (YYYY-MM-DD HH:MM:SS)
     deadline_clean = deadline.replace('T', ' ').strip()
@@ -163,6 +165,8 @@ def update_assignment(assignment_id):
         if allowed_file(file.filename):
             unique_filename, _ = save_uploaded_file(file, Config.ASSIGNMENT_UPLOADS)
             instruction_file = unique_filename
+        else:
+            return jsonify({'success': False, 'message': 'Uploaded file extension not allowed. Please attach a valid PDF, DOCX, PPTX, Image, TXT, or ZIP file.'}), 400
 
     # Standardize deadline format
     deadline_clean = str(deadline).replace('T', ' ').strip()

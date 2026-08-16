@@ -24,5 +24,5 @@ class Config:
     ASSIGNMENT_UPLOADS = os.path.join(UPLOAD_FOLDER, 'assignments')
     SUBMISSION_UPLOADS = os.path.join(UPLOAD_FOLDER, 'submissions')
     
-    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'txt', 'py', 'java', 'cpp', 'c', 'html', 'css', 'js'}
+    ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'rtf', 'png', 'jpg', 'jpeg', 'svg', 'gif', 'zip', 'rar', '7z', 'py', 'java', 'cpp', 'c', 'html', 'css', 'js'}
     SIMILARITY_THRESHOLD = 70.0 # Percentage threshold for similarity alerts
