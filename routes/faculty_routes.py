@@ -133,6 +133,73 @@ def create_assignment():
         'assignment_id': assignment_id
     })
 
+@faculty_bp.route('/api/faculty/assignments/<int:assignment_id>/update', methods=['POST'])
+@login_required(role='faculty')
+def update_assignment(assignment_id):
+    faculty_id = session['user_id']
+    assignment = DB.query("SELECT * FROM assignments WHERE assignment_id = %s", (assignment_id,), one=True)
+    
+    if not assignment:
+        return jsonify({'success': False, 'message': 'Assignment not found.'}), 404
+        
+    if assignment['faculty_id'] != faculty_id:
+        return jsonify({'success': False, 'message': 'Unauthorized to modify this assignment.'}), 403
+
+    data = request.form if request.form else (request.get_json() or {})
+
+    department_id = data.get('department_id', assignment['department_id'])
+    year = data.get('year', assignment['year'])
+    section = data.get('section', assignment['section'])
+    subject = data.get('subject', assignment['subject'])
+    title = data.get('title', assignment['title'])
+    description = data.get('description', assignment['description'])
+    deadline = data.get('deadline', str(assignment['deadline']))
+    maximum_marks = data.get('maximum_marks', assignment['maximum_marks'])
+
+    # Handle replacement instruction file if uploaded
+    instruction_file = assignment['instruction_file']
+    if 'file' in request.files and request.files['file'].filename != '':
+        file = request.files['file']
+        if allowed_file(file.filename):
+            unique_filename, _ = save_uploaded_file(file, Config.ASSIGNMENT_UPLOADS)
+            instruction_file = unique_filename
+
+    # Standardize deadline format
+    deadline_clean = str(deadline).replace('T', ' ').strip()
+    if len(deadline_clean) == 16:
+        deadline_clean += ':00'
+    elif len(deadline_clean) > 19:
+        deadline_clean = deadline_clean[:19]
+
+    try:
+        deadline_dt = datetime.strptime(deadline_clean, '%Y-%m-%d %H:%M:%S')
+    except ValueError:
+        return jsonify({'success': False, 'message': 'Invalid deadline date format.'}), 400
+
+    deadline_formatted = deadline_dt.strftime('%Y-%m-%d %H:%M:%S')
+
+    DB.execute("""
+        UPDATE assignments 
+        SET department_id = %s, year = %s, section = %s, subject = %s, title = %s,
+            description = %s, instruction_file = %s, deadline = %s, maximum_marks = %s
+        WHERE assignment_id = %s
+    """, (department_id, year, section, subject, title, description, instruction_file, deadline_formatted, maximum_marks, assignment_id))
+
+    # Notify students of updated assignment instructions
+    DB.execute("""
+        INSERT INTO notifications (user_role, user_id, title, message)
+        VALUES ('Student', NULL, %s, %s)
+    """, (f"Updated Assignment: {subject}", f"Assignment '{title}' instructions/deadline updated by {session.get('name')}."))
+
+    # Log Activity
+    DB.execute("INSERT INTO activity_logs (event_type, user_name, user_role, description) VALUES (%s, %s, %s, %s)",
+               ('Update Assignment', session.get('name'), 'Faculty', f"Replaced/Updated assignment '{title}'"))
+
+    return jsonify({
+        'success': True,
+        'message': 'Assignment updated and instruction file replaced successfully!'
+    })
+
 @faculty_bp.route('/api/faculty/assignments/<int:assignment_id>/submissions', methods=['GET'])
 @login_required(role='faculty')
 def get_assignment_submissions(assignment_id):

@@ -806,6 +806,7 @@ async function openFacultySubmissions(assignmentId) {
         }
 
         const a = data.assignment;
+        a.assignment_id = assignmentId;
         currentFacultyAssignment = a;
 
         document.getElementById('fs-eyebrow').innerHTML = `<span>${a.dept_code}</span><span>Year ${a.year}</span><span>Section ${a.section}</span>`;
@@ -1104,6 +1105,92 @@ function closeNotifOnOverlay(e) {
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
         closeModal();
+        closeEditModal();
         closeNotif();
     }
 });
+
+/* ── ASSIGNMENT REPLACEMENT & EDIT ENGINE ── */
+function openEditAssignmentModal() {
+    if (!currentFacultyAssignment) {
+        showToast('No assignment selected to edit.');
+        return;
+    }
+
+    const a = currentFacultyAssignment;
+    document.getElementById('edit-title').value = a.title || '';
+    document.getElementById('edit-subject').value = a.subject || '';
+    document.getElementById('edit-desc').value = a.description || '';
+    document.getElementById('edit-marks').value = a.maximum_marks || 20;
+
+    const deadlineInput = document.getElementById('edit-deadline');
+    if (deadlineInput && a.deadline) {
+        try {
+            const dt = new Date(a.deadline);
+            dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
+            deadlineInput.value = dt.toISOString().slice(0, 16);
+        } catch (err) {
+            deadlineInput.value = '';
+        }
+    }
+
+    document.getElementById('upload-fname-edit').style.display = 'none';
+    document.getElementById('file-input-edit').value = '';
+    document.getElementById('edit-assignment-modal').classList.add('open');
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('edit-assignment-modal');
+    if (modal) modal.classList.remove('open');
+}
+
+function fileSelectedEdit(input) {
+    const fname = input.files[0] ? input.files[0].name : '';
+    const el = document.getElementById('upload-fname-edit');
+    if (el && fname) {
+        el.textContent = '📄 Replacement: ' + fname;
+        el.style.display = 'block';
+    }
+}
+
+async function handleEditAssignmentSubmit(e) {
+    e.preventDefault();
+    if (!currentFacultyAssignment || !currentFacultyAssignment.assignment_id) {
+        showToast('Assignment ID missing.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', document.getElementById('edit-title').value.trim());
+    formData.append('subject', document.getElementById('edit-subject').value.trim());
+    formData.append('description', document.getElementById('edit-desc').value.trim());
+    formData.append('maximum_marks', document.getElementById('edit-marks').value);
+    formData.append('deadline', document.getElementById('edit-deadline').value);
+
+    const fileInput = document.getElementById('file-input-edit');
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+        formData.append('file', fileInput.files[0]);
+    }
+
+    showToast('Saving changes and replacing instruction file…');
+
+    try {
+        const res = await fetch(`/api/faculty/assignments/${currentFacultyAssignment.assignment_id}/update`, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(data.message);
+            closeEditModal();
+            setTimeout(() => {
+                loadFacultyAssignments();
+                openFacultySubmissions(currentFacultyAssignment.assignment_id);
+            }, 1200);
+        } else {
+            showToast(data.message || 'Update failed.');
+        }
+    } catch (err) {
+        showToast('Error updating assignment.');
+    }
+}

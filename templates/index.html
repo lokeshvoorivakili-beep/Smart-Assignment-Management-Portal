@@ -454,8 +454,11 @@
 
     <div class="detail-header">
       <div class="eyebrow" id="fs-eyebrow"><span>CSE</span><span>Year 3</span><span>Section A</span></div>
-      <h2 id="fs-title">Submissions</h2>
-      <div class="detail-stats">
+      <div style="display:flex;align-items:center;justify-space:between;gap:12px;">
+        <h2 id="fs-title" style="margin:0;">Submissions</h2>
+        <button class="btn-new" style="margin:0;padding:6px 14px;font-size:12px;" onclick="openEditAssignmentModal()">✏️ Edit / Replace Assignment</button>
+      </div>
+      <div class="detail-stats" style="margin-top:16px;">
         <div class="stat"><div class="stat-label">Total Submissions</div><div class="stat-value" id="fs-total">—</div></div>
         <div class="stat"><div class="stat-label">Max Marks</div><div class="stat-value" id="fs-maxmarks">—</div></div>
       </div>
@@ -606,6 +609,58 @@
       <div class="modal-actions">
         <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
         <button type="submit" class="btn-submit" style="flex:1;padding:12px;margin:0;">Save Grade</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     EDIT / REPLACE ASSIGNMENT MODAL
+══════════════════════════════════ -->
+<div class="modal-overlay" id="edit-assignment-modal">
+  <div class="modal" style="max-width:560px;">
+    <h3>Edit / Replace Assignment</h3>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Update assignment parameters or upload a new replacement instruction file.</p>
+
+    <form id="form-edit-assignment" onsubmit="handleEditAssignmentSubmit(event)">
+      <div class="form-group">
+        <label style="color:var(--text-muted)">Assignment Title</label>
+        <input type="text" id="edit-title" required style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--text-light);" />
+      </div>
+
+      <div class="form-group">
+        <label style="color:var(--text-muted)">Subject</label>
+        <input type="text" id="edit-subject" required style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--text-light);" />
+      </div>
+
+      <div class="form-group">
+        <label style="color:var(--text-muted)">Description & Instructions</label>
+        <textarea id="edit-desc" rows="3" required style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--text-light);resize:vertical;"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label style="color:var(--text-muted)">Max Marks</label>
+          <input type="number" id="edit-marks" min="1" max="100" required style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--text-light);" />
+        </div>
+        <div class="form-group">
+          <label style="color:var(--text-muted)">Deadline</label>
+          <input type="datetime-local" id="edit-deadline" required style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--text-light);" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label style="color:var(--text-muted)">Replace Instruction File (Optional)</label>
+        <div class="upload-zone" style="padding:16px;" onclick="document.getElementById('file-input-edit').click()">
+          <div class="upload-text" style="font-size:12px;"><strong>Click to upload new replacement instruction file</strong></div>
+          <div class="upload-filename" id="upload-fname-edit"></div>
+          <input type="file" id="file-input-edit" class="upload-input" onchange="fileSelectedEdit(this)"/>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="closeEditModal()">Cancel</button>
+        <button type="submit" class="btn-submit" style="flex:1;padding:12px;margin:0;">Save & Replace</button>
       </div>
     </form>
   </div>
