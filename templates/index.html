@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Smart Assignment Management Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=EB+Garamond:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SCREEN 1: HOME / ROLE SELECTION
+══════════════════════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="home-hero">
+    <div class="home-meta">
+      <span>College of Engineering</span><span>Est. Portal V1</span>
+    </div>
+    <h1 class="hero">Smart Assignment <em>Management</em> Portal</h1>
+    <p style="font-family:'EB Garamond',serif;font-size:17px;color:var(--text-muted);line-height:1.65;margin-bottom:0;">
+      Submit, grade, and track coursework in one place — no more paper trails. Choose your role to sign in.
+    </p>
+
+    <div class="role-cards">
+      <div class="role-card" onclick="showScreen('screen-student-auth')">
+        <div class="eyebrow">Enter As</div>
+        <h2>Student</h2>
+        <p>View assignments, submit your work, check marks and feedback.</p>
+      </div>
+      <div class="role-card" onclick="showScreen('screen-faculty-auth')">
+        <div class="eyebrow">Enter As</div>
+        <h2>Faculty</h2>
+        <p>Create assignments, review submissions, grade and give feedback.</p>
+      </div>
+    </div>
+
+    <div class="admin-link">
+      <a onclick="showScreen('screen-admin-auth')">Admin sign-in →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 2: STUDENT AUTH
+══════════════════════════════════ -->
+<div id="screen-student-auth" class="screen">
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuthTab(this,'s-login')">Sign In</div>
+        <div class="auth-tab" onclick="switchAuthTab(this,'s-register')">Register</div>
+      </div>
+
+      <!-- Login -->
+      <div id="s-login" class="register-panel active">
+        <div class="eyebrow">Student Sign-In</div>
+        <h2>Welcome back</h2>
+        <form id="form-student-login" onsubmit="handleStudentLogin(event)">
+          <div class="form-group">
+            <label>Hall Ticket Number</label>
+            <input type="text" placeholder="e.g. 23CS001" id="s-hallticket" required />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" placeholder="Enter your password" id="s-pass" required />
+          </div>
+          <button type="submit" class="btn-primary">Sign in</button>
+        </form>
+        <p class="auth-hint">Default seeded test account: Hall Ticket <strong>23CS001</strong> / Password <strong>student123</strong></p>
+        <a class="auth-back" onclick="showScreen('screen-home')">← Back to role selection</a>
+      </div>
+
+      <!-- Register -->
+      <div id="s-register" class="register-panel">
+        <div class="eyebrow">Student Registration</div>
+        <h2>Create account</h2>
+        <form id="form-student-register" onsubmit="handleStudentRegister(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" placeholder="First Name" id="sr-firstname" required />
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" placeholder="Last Name" id="sr-lastname" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Hall Ticket Number</label>
+            <input type="text" placeholder="e.g. 23CS005" id="sr-hallticket" required />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="you@college.edu" id="sr-email" required />
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" placeholder="9876543210" id="sr-phone" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Department</label>
+              <select id="sr-dept" required>
+                <!-- Populated via API -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Year</label>
+              <select id="sr-year" required>
+                <option value="1">Year 1</option>
+                <option value="2">Year 2</option>
+                <option value="3" selected>Year 3</option>
+                <option value="4">Year 4</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Section</label>
+            <select id="sr-section" required>
+              <option value="A">Section A</option>
+              <option value="B">Section B</option>
+              <option value="C">Section C</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" placeholder="Set a strong password" id="sr-pass" required />
+          </div>
+          <button type="submit" class="btn-primary">Register</button>
+        </form>
+        <a class="auth-back" onclick="showScreen('screen-home')">← Back to role selection</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 3: FACULTY AUTH
+══════════════════════════════════ -->
+<div id="screen-faculty-auth" class="screen">
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <div class="auth-tab active" onclick="switchAuthTab(this,'f-login')">Sign In</div>
+        <div class="auth-tab" onclick="switchAuthTab(this,'f-register')">Register</div>
+      </div>
+
+      <!-- Login -->
+      <div id="f-login" class="register-panel active">
+        <div class="eyebrow">Faculty Sign-In</div>
+        <h2>Welcome back</h2>
+        <form id="form-faculty-login" onsubmit="handleFacultyLogin(event)">
+          <div class="form-group">
+            <label>Faculty ID</label>
+            <input type="text" placeholder="e.g. F001" id="f-id" required />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" placeholder="Enter your password" id="f-pass" required />
+          </div>
+          <button type="submit" class="btn-primary">Sign in</button>
+        </form>
+        <p class="auth-hint">Default seeded test account: Faculty ID <strong>F001</strong> / Password <strong>faculty123</strong></p>
+        <a class="auth-back" onclick="showScreen('screen-home')">← Back to role selection</a>
+      </div>
+
+      <!-- Register -->
+      <div id="f-register" class="register-panel">
+        <div class="eyebrow">Faculty Registration</div>
+        <h2>Create account</h2>
+        <form id="form-faculty-register" onsubmit="handleFacultyRegister(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" placeholder="First Name" id="fr-firstname" required />
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" placeholder="Last Name" id="fr-lastname" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Faculty ID Code</label>
+            <input type="text" placeholder="e.g. F2024002" id="fr-code" required />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="faculty@college.edu" id="fr-email" required />
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" placeholder="9123456789" id="fr-phone" />
+          </div>
+          <div class="form-group">
+            <label>Department</label>
+            <select id="fr-dept" required>
+              <!-- Populated via API -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" placeholder="Set a strong password" id="fr-pass" required />
+          </div>
+          <button type="submit" class="btn-primary">Register</button>
+        </form>
+        <a class="auth-back" onclick="showScreen('screen-home')">← Back to role selection</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 4: STUDENT DASHBOARD
+══════════════════════════════════ -->
+<div id="screen-student-dashboard" class="screen">
+  <div class="topbar">
+    <div class="topbar-avatar" id="s-avatar">S</div>
+    <div class="topbar-name">SAMP <span id="s-topbar-role">Student</span></div>
+    <div class="topbar-spacer"></div>
+    <button class="topbar-notif" onclick="openNotif('Student')">
+      🔔 Notifications
+      <span class="notif-badge" id="s-notif-count">0</span>
+    </button>
+    <button class="topbar-signout" onclick="handleLogout()">Sign out</button>
+  </div>
+  <div class="page-content">
+    <div class="eyebrow" id="s-eyebrow">
+      <span>CSE</span><span>Year 3</span><span>Section A</span>
+    </div>
+    <h1 class="hero" style="font-size:clamp(24px,5vw,34px);" id="s-hero-title">Your Assignments</h1>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab(this,'t-open')">Open</button>
+      <button class="tab-btn" onclick="switchTab(this,'t-closed')">Closed</button>
+      <button class="tab-btn" onclick="switchTab(this,'t-grades')">Grades</button>
+    </div>
+
+    <div id="t-open" class="tab-panel active">
+      <div class="assignment-list" id="s-open-list">
+        <!-- Dynamically loaded assignments -->
+      </div>
+    </div>
+
+    <div id="t-closed" class="tab-panel">
+      <div class="assignment-list" id="s-closed-list">
+        <!-- Dynamically loaded closed assignments -->
+      </div>
+    </div>
+
+    <div id="t-grades" class="tab-panel" id="s-grades-panel">
+      <div id="s-grades-list">
+        <!-- Dynamically loaded graded items -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 5: STUDENT ASSIGNMENT DETAIL
+══════════════════════════════════ -->
+<div id="screen-student-detail" class="screen">
+  <div class="topbar">
+    <div class="topbar-avatar">S</div>
+    <div class="topbar-name">SAMP <span>Student</span></div>
+    <div class="topbar-spacer"></div>
+    <button class="topbar-signout" onclick="handleLogout()">Sign out</button>
+  </div>
+  <div class="page-content">
+    <button class="detail-back" onclick="showScreen('screen-student-dashboard')">← Back to assignments</button>
+
+    <div class="detail-header">
+      <div class="eyebrow" id="sd-eyebrow"><span>CSE</span><span>Year 3</span><span>Section A</span></div>
+      <div id="detail-subject-tag" class="subject-tag" style="margin-bottom:8px;display:inline-block;">—</div>
+      <h2 id="detail-title">—</h2>
+      <p class="detail-desc" id="detail-desc">—</p>
+      <div class="detail-stats">
+        <div class="stat">
+          <div class="stat-label">Max Marks</div>
+          <div class="stat-value" id="detail-marks">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Deadline</div>
+          <div class="stat-value" id="detail-deadline">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Status</div>
+          <div class="stat-value" id="detail-status" style="color:#2ecc71">Open</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Your Submission</div>
+          <div class="stat-value" id="detail-sub-status" style="color:var(--text-muted)">None yet</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="instruction-download-container" style="display:none;margin-bottom:16px;">
+      <button class="btn-new" id="btn-download-instruction">
+        ↓ Download Instructions File
+      </button>
+    </div>
+
+    <div style="background:var(--card-dark);border:1px solid var(--border);border-radius:var(--radius);padding:24px;">
+      <div class="eyebrow" style="margin-bottom:12px;" id="upload-zone-title">Upload Your Submission</div>
+      <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+        <div class="upload-icon">📎</div>
+        <div class="upload-text">
+          <strong>Click to choose file</strong> or drag and drop here<br>
+          PDF, DOCX, TXT, PY, JAVA, CPP, ZIP accepted · Max 20 MB
+        </div>
+        <div class="upload-filename" id="upload-fname"></div>
+        <input type="file" id="file-input" class="upload-input" onchange="fileSelected(this)"/>
+      </div>
+      <button class="btn-submit" id="btn-submit-assignment" onclick="submitStudentAssignment()">Submit Assignment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 6: FACULTY DASHBOARD
+══════════════════════════════════ -->
+<div id="screen-faculty-dashboard" class="screen">
+  <div class="topbar">
+    <div class="topbar-avatar" id="f-avatar">F</div>
+    <div class="topbar-name">SAMP <span id="f-topbar-role">Faculty</span></div>
+    <div class="topbar-spacer"></div>
+    <button class="topbar-notif" onclick="openNotif('Faculty')">
+      🔔 Notifications
+      <span class="notif-badge" id="f-notif-count">0</span>
+    </button>
+    <button class="topbar-signout" onclick="handleLogout()">Sign out</button>
+  </div>
+  <div class="page-content">
+    <div class="eyebrow" id="f-eyebrow"><span>Dr. Mehta</span><span>Computer Science</span></div>
+    <h1 class="hero" style="font-size:clamp(24px,5vw,34px);margin-bottom:24px;">Your Assignments</h1>
+
+    <button class="btn-new" onclick="showScreen('screen-faculty-create')">+ New assignment</button>
+
+    <!-- Subject filter -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterFaculty(this,'all')">All</button>
+      <button class="filter-btn" onclick="filterFaculty(this,'AI')">AI</button>
+      <button class="filter-btn" onclick="filterFaculty(this,'Python')">Python</button>
+      <button class="filter-btn" onclick="filterFaculty(this,'Java')">Java</button>
+      <button class="filter-btn" onclick="filterFaculty(this,'ADSAA')">ADSAA</button>
+    </div>
+
+    <div class="assignment-list" id="faculty-asgn-list">
+      <!-- Dynamically loaded assignments -->
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 7: FACULTY CREATE ASSIGNMENT
+══════════════════════════════════ -->
+<div id="screen-faculty-create" class="screen">
+  <div class="topbar">
+    <div class="topbar-avatar">F</div>
+    <div class="topbar-name">SAMP <span>Faculty</span></div>
+    <div class="topbar-spacer"></div>
+    <button class="topbar-signout" onclick="handleLogout()">Sign out</button>
+  </div>
+  <div class="page-content">
+    <button class="detail-back" onclick="showScreen('screen-faculty-dashboard')">← Back to assignments</button>
+    <h1 class="hero" style="font-size:26px;margin-bottom:24px;">Create Assignment</h1>
+
+    <form id="form-create-assignment" onsubmit="handleCreateAssignment(event)">
+      <div class="form-card">
+        <h3>Assignment Details</h3>
+        <div class="form-group">
+          <label>Subject</label>
+          <select id="create-subject" required>
+            <option value="">— Select Subject —</option>
+            <option value="AI">AI (Artificial Intelligence)</option>
+            <option value="Python">Python Programming</option>
+            <option value="Java">Java Programming</option>
+            <option value="ADSAA">ADSAA (Algorithms & Data Structures)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="create-title" placeholder="e.g. A* Search Algorithm — 8-Puzzle Problem" required />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="create-desc" rows="4" placeholder="Describe the assignment task, requirements, and expected deliverables…" style="resize:vertical;" required></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Department Target</label>
+            <select id="create-dept" required>
+              <!-- Loaded via API -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Year Target</label>
+            <select id="create-year" required>
+              <option value="1">Year 1</option>
+              <option value="2">Year 2</option>
+              <option value="3" selected>Year 3</option>
+              <option value="4">Year 4</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Section Target</label>
+            <select id="create-section" required>
+              <option value="A">Section A</option>
+              <option value="B">Section B</option>
+              <option value="C">Section C</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Max Marks</label>
+            <input type="number" id="create-marks" placeholder="20" min="1" max="100" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Deadline</label>
+          <input type="datetime-local" id="create-deadline" required />
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h3>Assignment File (Optional Instructions)</h3>
+        <div class="upload-zone" onclick="document.getElementById('file-input-f').click()">
+          <div class="upload-icon">📄</div>
+          <div class="upload-text">
+            <strong>Attach instructions file</strong><br>
+            PDF, DOCX, ZIP accepted · Max 10 MB
+          </div>
+          <div class="upload-filename" id="upload-fname-f"></div>
+          <input type="file" id="file-input-f" class="upload-input" onchange="fileSelectedFaculty(this)"/>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Publish Assignment</button>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 8: FACULTY SUBMISSIONS
+══════════════════════════════════ -->
+<div id="screen-faculty-submissions" class="screen">
+  <div class="topbar">
+    <div class="topbar-avatar">F</div>
+    <div class="topbar-name">SAMP <span>Faculty</span></div>
+    <div class="topbar-spacer"></div>
+    <button class="topbar-signout" onclick="handleLogout()">Sign out</button>
+  </div>
+  <div class="page-content">
+    <button class="detail-back" onclick="showScreen('screen-faculty-dashboard')">← Back to assignments</button>
+
+    <div class="detail-header">
+      <div class="eyebrow" id="fs-eyebrow"><span>CSE</span><span>Year 3</span><span>Section A</span></div>
+      <h2 id="fs-title">Submissions</h2>
+      <div class="detail-stats">
+        <div class="stat"><div class="stat-label">Total Submissions</div><div class="stat-value" id="fs-total">—</div></div>
+        <div class="stat"><div class="stat-label">Max Marks</div><div class="stat-value" id="fs-maxmarks">—</div></div>
+      </div>
+    </div>
+
+    <div class="submissions-table">
+      <div class="table-header">
+        <div>Student</div>
+        <div>Submitted</div>
+        <div>Status</div>
+        <div>Marks</div>
+      </div>
+      <div id="fs-submissions-rows">
+        <!-- Dynamically rendered submission rows -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 9: ADMIN AUTH
+══════════════════════════════════ -->
+<div id="screen-admin-auth" class="screen">
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <div class="eyebrow">Admin Sign-In</div>
+      <h2>Admin Portal</h2>
+      <form id="form-admin-login" onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label>Admin Username</label>
+          <input type="text" placeholder="admin" id="a-username" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="Enter password" id="a-pass" required />
+        </div>
+        <button type="submit" class="btn-primary">Sign in as Admin</button>
+      </form>
+      <p class="auth-hint">Default admin account: Username <strong>admin</strong> / Password <strong>admin123</strong></p>
+      <a class="auth-back" onclick="showScreen('screen-home')">← Back to role selection</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     SCREEN 10: ADMIN DASHBOARD
+══════════════════════════════════ -->
+<div id="screen-admin-dashboard" class="screen">
+  <div class="topbar">
+    <div class="topbar-avatar" style="background:#e74c3c;color:#fff;">A</div>
+    <div class="topbar-name">SAMP <span style="color:#e74c3c">Admin</span></div>
+    <div class="topbar-spacer"></div>
+    <button class="topbar-signout" onclick="handleLogout()">Sign out</button>
+  </div>
+  <div class="page-content">
+    <h1 class="hero" style="font-size:28px;margin-bottom:28px;">Admin Panel</h1>
+
+    <div class="detail-stats" style="margin-bottom:24px;border:1px solid var(--border);padding:16px;border-radius:var(--radius);background:var(--card-dark);">
+      <div class="stat"><div class="stat-label">Students</div><div class="stat-value" id="adm-stat-students" style="color:var(--text-light)">0</div></div>
+      <div class="stat"><div class="stat-label">Pending Students</div><div class="stat-value" id="adm-stat-pstudents" style="color:var(--gold)">0</div></div>
+      <div class="stat"><div class="stat-label">Faculty</div><div class="stat-value" id="adm-stat-faculty" style="color:var(--text-light)">0</div></div>
+      <div class="stat"><div class="stat-label">Pending Faculty</div><div class="stat-value" id="adm-stat-pfaculty" style="color:var(--gold)">0</div></div>
+      <div class="stat"><div class="stat-label">Assignments</div><div class="stat-value" id="adm-stat-assignments" style="color:var(--text-light)">0</div></div>
+      <div class="stat"><div class="stat-label">Submissions</div><div class="stat-value" id="adm-stat-submissions" style="color:var(--text-light)">0</div></div>
+    </div>
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab(this,'a-pending')">Pending Registrations</button>
+      <button class="tab-btn" onclick="switchTab(this,'a-depts')">Departments</button>
+      <button class="tab-btn" onclick="switchTab(this,'a-activity')">Activity</button>
+    </div>
+
+    <div id="a-pending" class="tab-panel active">
+      <div class="submissions-table">
+        <div class="table-header" style="grid-template-columns:2fr 1.5fr 1fr 1.5fr;">
+          <div>Name</div><div>Role · Dept</div><div>Date</div><div>Actions</div>
+        </div>
+        <div id="admin-pending-rows">
+          <!-- Dynamically populated pending requests -->
+        </div>
+      </div>
+    </div>
+
+    <div id="a-depts" class="tab-panel">
+      <div class="submissions-table" style="margin-bottom:16px;">
+        <div class="table-header" style="grid-template-columns:2fr 1fr 1fr;">
+          <div>Department</div><div>Students</div><div>Faculty</div>
+        </div>
+        <div id="admin-dept-rows">
+          <!-- Dynamically loaded department list -->
+        </div>
+      </div>
+      <button class="btn-new" onclick="promptAddDepartment()">+ Add Department</button>
+    </div>
+
+    <div id="a-activity" class="tab-panel">
+      <div class="submissions-table">
+        <div class="table-header" style="grid-template-columns:2fr 2fr 1fr;">
+          <div>Event</div><div>User</div><div>Time</div>
+        </div>
+        <div id="admin-activity-rows">
+          <!-- Dynamically loaded activity log -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     NOTIFICATION DRAWER
+══════════════════════════════════ -->
+<div class="notif-overlay" id="notif-overlay" onclick="closeNotifOnOverlay(event)">
+  <div class="notif-drawer">
+    <div class="notif-header">
+      <h3>Notifications</h3>
+      <button class="notif-close" onclick="closeNotif()">✕</button>
+    </div>
+    <div id="notif-items-container">
+      <!-- Loaded dynamically -->
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     GRADE MODAL
+══════════════════════════════════ -->
+<div class="modal-overlay" id="grade-modal">
+  <div class="modal">
+    <h3>Grade Submission</h3>
+    <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;" id="modal-student-name"></p>
+    
+    <div id="modal-similarity-badge" style="margin-bottom:16px;display:none;"></div>
+
+    <button class="btn-new" style="width:100%;justify-content:center;margin-bottom:16px;" id="btn-download-submission">↓ Download Student Submission</button>
+
+    <form id="form-grade-submission" onsubmit="handleGradeSubmit(event)">
+      <div class="form-group">
+        <label style="color:var(--text-muted)">Marks Obtained</label>
+        <input type="number" id="modal-marks" placeholder="e.g. 18" min="0" step="0.5" required
+          style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--text-light);"/>
+      </div>
+      <div class="form-group">
+        <label style="color:var(--text-muted)">Feedback</label>
+        <textarea id="modal-feedback" rows="3" placeholder="Write constructive feedback for the student…"
+          style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);color:var(--text-light);resize:vertical;"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn-submit" style="flex:1;padding:12px;margin:0;">Save Grade</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     TOAST
+══════════════════════════════════ -->
+<div class="toast" id="toast"></div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>
