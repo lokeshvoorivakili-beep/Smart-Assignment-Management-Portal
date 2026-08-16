@@ -1213,3 +1213,30 @@ function exportFacultyMarksCSV() {
     showToast('Exporting student marks sheet (CSV)…');
     window.open(`/api/faculty/assignments/${currentFacultyAssignment.assignment_id}/export-csv`, '_blank');
 }
+
+async function deleteFacultyAssignment() {
+    if (!currentFacultyAssignment || !currentFacultyAssignment.assignment_id) {
+        showToast('No assignment selected to delete.');
+        return;
+    }
+    if (!confirm(`Are you sure you want to delete assignment "${currentFacultyAssignment.title}"? This cannot be undone.`)) {
+        return;
+    }
+    try {
+        const res = await fetch(`/api/faculty/assignments/${currentFacultyAssignment.assignment_id}/delete`, {
+            method: 'POST'
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(data.message);
+            setTimeout(() => {
+                loadFacultyAssignments();
+                showScreen('screen-faculty-dashboard');
+            }, 1000);
+        } else {
+            showToast(data.message || 'Delete failed.');
+        }
+    } catch (e) {
+        showToast('Error deleting assignment.');
+    }
+}

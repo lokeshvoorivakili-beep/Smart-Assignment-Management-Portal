@@ -206,6 +206,31 @@ def update_assignment(assignment_id):
         'message': 'Assignment updated and instruction file replaced successfully!'
     })
 
+@faculty_bp.route('/api/faculty/assignments/<int:assignment_id>/delete', methods=['POST', 'DELETE'])
+@login_required(role='faculty')
+def delete_assignment(assignment_id):
+    faculty_id = session['user_id']
+    assignment = DB.query("SELECT * FROM assignments WHERE assignment_id = %s", (assignment_id,), one=True)
+    
+    if not assignment:
+        return jsonify({'success': False, 'message': 'Assignment not found.'}), 404
+        
+    if assignment['faculty_id'] != faculty_id:
+        return jsonify({'success': False, 'message': 'Unauthorized to delete this assignment.'}), 403
+
+    # Delete related submissions and assignment
+    DB.execute("DELETE FROM submissions WHERE assignment_id = %s", (assignment_id,))
+    DB.execute("DELETE FROM assignments WHERE assignment_id = %s", (assignment_id,))
+
+    # Log Activity
+    DB.execute("INSERT INTO activity_logs (event_type, user_name, user_role, description) VALUES (%s, %s, %s, %s)",
+               ('Delete Assignment', session.get('name'), 'Faculty', f"Deleted assignment '{assignment['title']}' for Subject: {assignment['subject']}"))
+
+    return jsonify({
+        'success': True,
+        'message': 'Assignment deleted successfully!'
+    })
+
 @faculty_bp.route('/api/faculty/assignments/<int:assignment_id>/submissions', methods=['GET'])
 @login_required(role='faculty')
 def get_assignment_submissions(assignment_id):
