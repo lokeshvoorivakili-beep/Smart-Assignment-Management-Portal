@@ -488,6 +488,7 @@ async function loadStudentGrades() {
                         <div class="marks-info">
                             <h4>${g.subject} — ${g.assignment_title}</h4>
                             <p>Graded by ${g.faculty_name} · ${g.graded_at}</p>
+                            ${g.uploaded_file ? `<button class="btn-new" style="font-size:11px;padding:4px 10px;margin-top:6px;" onclick="window.open('/download/submission/${g.uploaded_file}', '_blank')">↓ Download Submitted File</button>` : ''}
                         </div>
                     </div>
                     <div class="feedback-box mt-8" style="margin-bottom:20px;">
@@ -549,6 +550,16 @@ async function openStudentDetail(assignmentId) {
             btnDownload.onclick = () => window.open(`/download/assignment/${a.instruction_file}`, '_blank');
         } else {
             instContainer.style.display = 'none';
+        }
+
+        // Student submission download button
+        const subDownloadContainer = document.getElementById('student-sub-download-container');
+        const btnSubDownload = document.getElementById('btn-download-student-sub');
+        if (a.submission && a.submission.uploaded_file && subDownloadContainer && btnSubDownload) {
+            subDownloadContainer.style.display = 'block';
+            btnSubDownload.onclick = () => window.open(`/download/submission/${a.submission.uploaded_file}`, '_blank');
+        } else if (subDownloadContainer) {
+            subDownloadContainer.style.display = 'none';
         }
 
         // Upload zone & button state

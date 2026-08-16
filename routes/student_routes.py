@@ -131,6 +131,7 @@ def get_assignment_detail(assignment_id):
             'submission': {
                 'submission_id': assignment['submission_id'],
                 'filename': assignment['original_filename'],
+                'uploaded_file': assignment['uploaded_file'],
                 'submitted_at': format_dt(assignment['submitted_at']),
                 'status': assignment['submission_status'],
                 'marks': assignment['marks'],
@@ -255,6 +256,8 @@ def get_student_grades():
             'marks': item['marks'],
             'feedback': item['feedback'],
             'faculty_name': f"{item['faculty_first']} {item['faculty_last']}",
+            'uploaded_file': item['uploaded_file'],
+            'original_filename': item['original_filename'],
             'graded_at': format_dt(item['graded_at'], '%b %d, %Y') or 'Recently'
         })
 
