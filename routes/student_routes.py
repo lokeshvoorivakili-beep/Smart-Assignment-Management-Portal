@@ -72,6 +72,7 @@ def get_student_assignments():
             'deadline_iso': deadline_dt.isoformat(),
             'is_open': is_open,
             'has_instruction_file': bool(a['instruction_file']),
+            'instruction_file': a['instruction_file'],
             'submission': {
                 'submitted': bool(a['submission_id']),
                 'submission_id': a['submission_id'],

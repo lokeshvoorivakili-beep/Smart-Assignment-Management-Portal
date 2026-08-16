@@ -460,6 +460,7 @@ async function loadStudentAssignments() {
                         <span class="dot ${a.is_open ? 'dot-green' : 'dot-red'}"></span>
                         <span>${a.is_open ? 'Due ' + a.deadline : 'Deadline passed: ' + a.deadline}</span>
                     </div>
+                    ${a.instruction_file ? `<button class="btn-new" style="margin-top:10px;font-size:11px;padding:6px 12px;width:100%;justify-content:center;" onclick="event.stopPropagation(); window.open('/download/assignment/${a.instruction_file}', '_blank');">📄 ↓ Download Faculty Document</button>` : ''}
                 </div>
             `;
             if (a.is_open) openHtml += cardHtml;
@@ -553,16 +554,6 @@ async function openStudentDetail(assignmentId) {
             btnDownload.onclick = () => window.open(`/download/assignment/${a.instruction_file}`, '_blank');
         } else {
             instContainer.style.display = 'none';
-        }
-
-        // Student submission download button
-        const subDownloadContainer = document.getElementById('student-sub-download-container');
-        const btnSubDownload = document.getElementById('btn-download-student-sub');
-        if (a.submission && a.submission.uploaded_file && subDownloadContainer && btnSubDownload) {
-            subDownloadContainer.style.display = 'block';
-            btnSubDownload.onclick = () => window.open(`/download/submission/${a.submission.uploaded_file}`, '_blank');
-        } else if (subDownloadContainer) {
-            subDownloadContainer.style.display = 'none';
         }
 
         // Upload zone & button state
