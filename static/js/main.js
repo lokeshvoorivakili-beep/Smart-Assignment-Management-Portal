@@ -549,11 +549,16 @@ async function openStudentDetail(assignmentId) {
         // Instruction file button
         const instContainer = document.getElementById('instruction-download-container');
         const btnDownload = document.getElementById('btn-download-instruction');
-        if (a.instruction_file) {
+        if (instContainer) {
             instContainer.style.display = 'block';
-            btnDownload.onclick = () => window.open(`/download/assignment/${a.instruction_file}`, '_blank');
-        } else {
-            instContainer.style.display = 'none';
+            if (a.instruction_file) {
+                btnDownload.style.display = 'inline-flex';
+                btnDownload.innerHTML = '📄 ↓ Download Faculty Assignment Document';
+                btnDownload.onclick = () => window.open(`/download/assignment/${a.instruction_file}`, '_blank');
+            } else {
+                btnDownload.style.display = 'none';
+                instContainer.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:8px 12px;background:rgba(255,255,255,0.03);border:1px dashed var(--border);border-radius:var(--radius);display:inline-block;">ℹ️ No document attached by faculty for this assignment</div>';
+            }
         }
 
         // Upload zone & button state
