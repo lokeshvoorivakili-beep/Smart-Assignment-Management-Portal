@@ -454,9 +454,12 @@
 
     <div class="detail-header">
       <div class="eyebrow" id="fs-eyebrow"><span>CSE</span><span>Year 3</span><span>Section A</span></div>
-      <div style="display:flex;align-items:center;justify-space:between;gap:12px;">
+      <div style="display:flex;align-items:center;justify-space:between;gap:12px;flex-wrap:wrap;">
         <h2 id="fs-title" style="margin:0;">Submissions</h2>
-        <button class="btn-new" style="margin:0;padding:6px 14px;font-size:12px;" onclick="openEditAssignmentModal()">✏️ Edit / Replace Assignment</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-new" style="margin:0;padding:6px 14px;font-size:12px;background:linear-gradient(135deg, #27ae60, #2ecc71);color:#fff;border:none;" onclick="exportFacultyMarksCSV()">📊 Export Marks (CSV)</button>
+          <button class="btn-new" style="margin:0;padding:6px 14px;font-size:12px;" onclick="openEditAssignmentModal()">✏️ Edit / Replace Assignment</button>
+        </div>
       </div>
       <div class="detail-stats" style="margin-top:16px;">
         <div class="stat"><div class="stat-label">Total Submissions</div><div class="stat-value" id="fs-total">—</div></div>

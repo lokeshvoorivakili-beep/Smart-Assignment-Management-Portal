@@ -1204,3 +1204,12 @@ async function handleEditAssignmentSubmit(e) {
         showToast('Error updating assignment.');
     }
 }
+
+function exportFacultyMarksCSV() {
+    if (!currentFacultyAssignment || !currentFacultyAssignment.assignment_id) {
+        showToast('No assignment selected to export.');
+        return;
+    }
+    showToast('Exporting student marks sheet (CSV)…');
+    window.open(`/api/faculty/assignments/${currentFacultyAssignment.assignment_id}/export-csv`, '_blank');
+}

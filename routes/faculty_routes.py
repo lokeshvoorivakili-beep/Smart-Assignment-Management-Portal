@@ -1,6 +1,8 @@
 import os
+import csv
+import io
 from datetime import datetime
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, Response
 from db import DB
 from config import Config
 from utils.auth_utils import login_required
@@ -331,3 +333,61 @@ def get_similarity_alerts():
         })
 
     return jsonify({'success': True, 'alerts': result})
+
+@faculty_bp.route('/api/faculty/assignments/<int:assignment_id>/export-csv', methods=['GET'])
+@login_required(role='faculty')
+def export_assignment_csv(assignment_id):
+    faculty_id = session['user_id']
+    assignment = DB.query("""
+        SELECT a.*, d.code as dept_code 
+        FROM assignments a
+        JOIN departments d ON a.department_id = d.department_id
+        WHERE a.assignment_id = %s AND a.faculty_id = %s
+    """, (assignment_id, faculty_id), one=True)
+
+    if not assignment:
+        return jsonify({'success': False, 'message': 'Assignment not found.'}), 404
+
+    submissions = DB.query("""
+        SELECT s.*, st.first_name, st.last_name, st.hall_ticket_no, st.email, st.year, st.section
+        FROM submissions s
+        JOIN students st ON s.student_id = st.student_id
+        WHERE s.assignment_id = %s
+        ORDER BY st.hall_ticket_no ASC
+    """, (assignment_id,))
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    writer.writerow([
+        'Hall Ticket No', 'Student Name', 'Email', 'Department', 'Year', 'Section',
+        'Assignment Title', 'Subject', 'Status', 'Submitted At', 'Marks Obtained',
+        'Max Marks', 'Similarity Score (%)', 'Faculty Feedback'
+    ])
+
+    for s in submissions:
+        writer.writerow([
+            s['hall_ticket_no'],
+            f"{s['first_name']} {s['last_name']}",
+            s['email'],
+            assignment['dept_code'],
+            s['year'],
+            s['section'],
+            assignment['title'],
+            assignment['subject'],
+            s['submission_status'],
+            format_dt(s['submitted_at']),
+            s['marks'] if s['marks'] is not None else 'N/A',
+            assignment['maximum_marks'],
+            f"{s['similarity_score']:.1f}%" if s['similarity_score'] else '0.0%',
+            s['feedback'] or ''
+        ])
+
+    output.seek(0)
+    filename = f"Marks_Report_{assignment['subject']}_{assignment_id}.csv".replace(' ', '_')
+    
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename="{filename}"'}
+    )
