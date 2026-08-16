@@ -447,7 +447,10 @@ async function loadStudentAssignments() {
         data.assignments.forEach(a => {
             const cardHtml = `
                 <div class="asgn-card" data-subject="${a.subject}" onclick="openStudentDetail(${a.assignment_id})">
-                    <div class="status-badge ${a.is_open ? 'status-open' : 'status-closed'}">${a.is_open ? 'Open' : 'Closed'}</div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                        <div class="status-badge ${a.is_open ? 'status-open' : 'status-closed'}">${a.is_open ? 'Open' : 'Closed'}</div>
+                        ${a.has_instruction_file ? '<span style="background:rgba(201,168,76,0.15);color:var(--gold);font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;border:1px solid rgba(201,168,76,0.3);">📎 Doc Attached</span>' : ''}
+                    </div>
                     <div class="subject-tag">${a.subject}</div>
                     <div class="asgn-title">${a.title}</div>
                     <div class="asgn-meta">
