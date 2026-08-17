@@ -297,45 +297,5 @@ def seed_db():
     else:
         fac_id = fac['faculty_id']
 
-    # Seed Initial Sample Assignments
-    asgns = DB.query("SELECT COUNT(*) as count FROM assignments", one=True)
-    if asgns and (asgns['count'] == 0 or asgns.get('count(*)', 0) == 0):
-        dt_future1 = (datetime.now() + timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')
-        dt_future2 = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
-        dt_future3 = (datetime.now() + timedelta(days=10)).strftime('%Y-%m-%d %H:%M:%S')
-        dt_past = (datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')
-
-        DB.execute("""
-            INSERT INTO assignments (faculty_id, department_id, year, section, subject, title, description, deadline, maximum_marks)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (fac_id, cse_id, 2, 'A', 'ADSAA', 'AVL Tree Implementation & Analysis',
-              'Implement a self-balancing AVL tree in C++ with insert, delete, and search operations. Include rotation logic and height balancing. Provide a test driver.',
-              dt_future1, 20))
-
-        DB.execute("""
-            INSERT INTO assignments (faculty_id, department_id, year, section, subject, title, description, deadline, maximum_marks)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (fac_id, cse_id, 2, 'A', 'Python', 'File Handling & Exception Management',
-              'Write a Python program that reads a large CSV file, handles missing data with custom exceptions, logs errors to a separate file, and outputs a cleaned dataset.',
-              dt_future2, 25))
-
-        DB.execute("""
-            INSERT INTO assignments (faculty_id, department_id, year, section, subject, title, description, deadline, maximum_marks)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (fac_id, cse_id, 2, 'A', 'AI', 'A* Search Algorithm — 8-Puzzle Problem',
-              'Implement the A* search algorithm to solve the 8-puzzle problem. Use Manhattan distance heuristic. Compare performance with BFS.',
-              dt_future3, 30))
-
-        DB.execute("""
-            INSERT INTO assignments (faculty_id, department_id, year, section, subject, title, description, deadline, maximum_marks)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (fac_id, cse_id, 2, 'A', 'Java', 'Multithreading — Producer Consumer Problem',
-              'Implement the classic Producer-Consumer problem in Java using synchronized blocks and wait/notify. Demonstrate with concurrent producers.',
-              dt_past, 20))
-
-        DB.execute("""
-            INSERT INTO assignments (faculty_id, department_id, year, section, subject, title, description, deadline, maximum_marks)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (fac_id, cse_id, 3, 'A', 'Python', 'Advanced Flask Web Portal Architecture',
-              'Develop a secure, role-based web assignment portal with SQLite/MariaDB persistence, bcrypt authentication, and automated file validation.',
-              dt_future2, 50))
+    # Faculty and Student accounts registered by users will be approved and stored permanently.
+    pass
