@@ -70,10 +70,10 @@ def student_login():
         return jsonify({'success': False, 'message': 'Invalid Hall Ticket Number or Password.'}), 401
 
     if student['approval_status'] == 'Pending':
-        return jsonify({'success': False, 'message': 'Your account is not approved yet.'}), 403
+        return jsonify({'success': False, 'message': 'Account Registration Pending! Please log in as Admin (admin / admin123) to Approve.'}), 403
 
     if student['approval_status'] == 'Rejected':
-        return jsonify({'success': False, 'message': 'Your account registration was rejected by Admin.'}), 403
+        return jsonify({'success': False, 'message': 'Your registration was rejected by Admin.'}), 403
 
     # Create session
     session.clear()
@@ -185,10 +185,10 @@ def faculty_login():
         return jsonify({'success': False, 'message': 'Invalid Faculty ID or Password.'}), 401
 
     if fac['approval_status'] == 'Pending':
-        return jsonify({'success': False, 'message': 'Your account is not approved yet.'}), 403
+        return jsonify({'success': False, 'message': 'Faculty Account Registration Pending! Please log in as Admin (admin / admin123) to Approve.'}), 403
 
     if fac['approval_status'] == 'Rejected':
-        return jsonify({'success': False, 'message': 'Your account registration was rejected by Admin.'}), 403
+        return jsonify({'success': False, 'message': 'Your faculty registration was rejected by Admin.'}), 403
 
     session.clear()
     session['user_id'] = fac['faculty_id']

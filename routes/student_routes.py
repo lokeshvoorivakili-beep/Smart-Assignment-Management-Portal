@@ -40,7 +40,7 @@ def get_student_assignments():
         JOIN faculty f ON a.faculty_id = f.faculty_id
         JOIN departments d ON a.department_id = d.department_id
         LEFT JOIN submissions s ON (a.assignment_id = s.assignment_id AND s.student_id = %s)
-        WHERE a.department_id = %s AND a.year = %s AND a.section = %s
+        WHERE a.department_id = %s AND a.year = %s AND (a.section = %s OR LOWER(a.section) = 'all')
         ORDER BY a.deadline ASC
     """, (student_id, dept_id, year, section))
 

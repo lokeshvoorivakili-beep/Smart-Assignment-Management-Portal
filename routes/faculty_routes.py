@@ -30,13 +30,11 @@ def get_faculty_assignments():
     
     assignments = DB.query("""
         SELECT a.*, d.code as dept_code,
-               COUNT(s.submission_id) as total_submissions,
-               SUM(CASE WHEN s.submission_status = 'Graded' THEN 1 ELSE 0 END) as graded_count
+               (SELECT COUNT(*) FROM submissions s WHERE s.assignment_id = a.assignment_id) as total_submissions,
+               (SELECT COUNT(*) FROM submissions s WHERE s.assignment_id = a.assignment_id AND s.submission_status = 'Graded') as graded_count
         FROM assignments a
         JOIN departments d ON a.department_id = d.department_id
-        LEFT JOIN submissions s ON a.assignment_id = s.assignment_id
         WHERE a.faculty_id = %s
-        GROUP BY a.assignment_id
         ORDER BY a.created_at DESC
     """, (faculty_id,))
 
