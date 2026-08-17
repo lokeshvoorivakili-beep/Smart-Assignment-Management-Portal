@@ -6,6 +6,13 @@ import bcrypt
 from datetime import datetime, timedelta
 from config import Config
 
+try:
+    import psycopg2
+    import psycopg2.extras
+    HAS_POSTGRES = True
+except ImportError:
+    HAS_POSTGRES = False
+
 def is_mysql_available():
     """Fast socket test to check if MySQL/MariaDB server is running on port 3306."""
     try:
@@ -17,9 +24,21 @@ def is_mysql_available():
 
 def get_db():
     """
-    Attempts to connect to MySQL/MariaDB if server is listening on port 3306.
+    Attempts Cloud PostgreSQL via DATABASE_URL first.
+    Then attempts MySQL/MariaDB if listening on port 3306.
     Otherwise, transparently falls back to local SQLite database.
     """
+    database_url = os.getenv('DATABASE_URL') or os.getenv('INTERNAL_DATABASE_URL')
+    if HAS_POSTGRES and database_url:
+        try:
+            if database_url.startswith("postgres://"):
+                database_url = database_url.replace("postgres://", "postgresql://", 1)
+            conn = psycopg2.connect(database_url, cursor_factory=psycopg2.extras.RealDictCursor)
+            conn.autocommit = True
+            return conn, 'postgres'
+        except Exception as e:
+            print("PostgreSQL connection error:", e)
+
     if is_mysql_available():
         try:
             conn = pymysql.connect(
@@ -49,7 +68,7 @@ class DB:
     def query(sql, params=(), one=False):
         conn, db_type = get_db()
         try:
-            if db_type == 'mysql':
+            if db_type in ('mysql', 'postgres'):
                 with conn.cursor() as cursor:
                     cursor.execute(sql, params)
                     rv = cursor.fetchall()
@@ -71,8 +90,29 @@ class DB:
             if db_type == 'mysql':
                 with conn.cursor() as cursor:
                     cursor.execute(sql, params)
-                    last_id = cursor.lastrowid
-                    return last_id
+                    return cursor.lastrowid
+            elif db_type == 'postgres':
+                with conn.cursor() as cursor:
+                    sql_pg = sql
+                    if 'INSERT INTO' in sql_pg.upper() and 'RETURNING' not in sql_pg.upper():
+                        words = sql_pg.strip().split()
+                        try:
+                            tbl_idx = [i for i, w in enumerate(words) if w.upper() == 'INTO'][0] + 1
+                            tbl_name = words[tbl_idx].split('(')[0]
+                            id_col = tbl_name.rstrip('s') + '_id'
+                            if tbl_name.lower() == 'faculty':
+                                id_col = 'faculty_id'
+                            elif tbl_name.lower() == 'activity_logs':
+                                id_col = 'log_id'
+                            sql_pg += f" RETURNING {id_col}"
+                        except Exception:
+                            pass
+                    cursor.execute(sql_pg, params)
+                    try:
+                        res = cursor.fetchone()
+                        return res[list(res.keys())[0]] if res else None
+                    except Exception:
+                        return None
             else:
                 sql_sqlite = sql.replace('%s', '?')
                 cursor = conn.cursor()
