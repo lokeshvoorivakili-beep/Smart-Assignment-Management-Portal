@@ -432,6 +432,7 @@ function updateStudentUI(student) {
 }
 
 async function loadStudentAssignments() {
+    updateNotificationBadge();
     try {
         const res = await fetch('/api/student/assignments');
         const data = await res.json();
@@ -1095,12 +1096,30 @@ async function openNotif(role) {
                 `;
             });
             container.innerHTML = html;
+            const sBadge = document.getElementById('s-notif-count');
+            if (sBadge) sBadge.textContent = data.notifications.length;
         } else {
             container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:12px 0;">No notifications at this time.</p>';
+            const sBadge = document.getElementById('s-notif-count');
+            if (sBadge) sBadge.textContent = '0';
         }
     } catch (e) {
         container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No notifications found.</p>';
     }
+}
+
+async function updateNotificationBadge() {
+    try {
+        const res = await fetch('/api/student/notifications');
+        const data = await res.json();
+        if (data.success && data.notifications) {
+            const count = data.notifications.length;
+            const sBadge = document.getElementById('s-notif-count');
+            const fBadge = document.getElementById('f-notif-count');
+            if (sBadge) sBadge.textContent = count;
+            if (fBadge) fBadge.textContent = count;
+        }
+    } catch (e) {}
 }
 
 function closeNotif() {

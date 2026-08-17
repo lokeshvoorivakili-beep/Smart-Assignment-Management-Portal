@@ -65,28 +65,38 @@ body {
 .topbar-spacer { flex: 1; }
 .topbar-notif {
   position: relative;
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--text-light);
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  display: flex; align-items: center; gap: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: 'DM Sans', sans-serif;
-  padding: 6px 10px;
-  border-radius: var(--radius);
-  transition: background .2s;
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all .2s ease;
 }
-.topbar-notif:hover { background: rgba(255,255,255,.05); }
+.topbar-notif:hover {
+  background: rgba(201, 168, 76, 0.12);
+  border-color: rgba(201, 168, 76, 0.35);
+  color: #f5d77f;
+}
 .notif-badge {
-  position: absolute;
-  top: 2px; right: 4px;
-  width: 16px; height: 16px;
-  background: var(--gold);
-  border-radius: 50%;
-  font-size: 9px;
+  background: linear-gradient(135deg, #c9a84c, #f1d581);
   color: #000;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  line-height: 1;
 }
 .topbar-signout {
   background: none; border: none;
