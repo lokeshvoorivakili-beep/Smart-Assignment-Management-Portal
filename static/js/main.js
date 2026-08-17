@@ -421,7 +421,7 @@ function updateStudentUI(student) {
     const eyebrow = document.getElementById('s-eyebrow');
 
     if (avatar) avatar.textContent = (student.name || 'S').charAt(0).toUpperCase();
-    if (heroTitle) heroTitle.textContent = `${student.name.split(' ')[0]}'s Assignments`;
+    if (heroTitle) heroTitle.textContent = `${student.name}'s Assignments`;
     if (eyebrow) {
         eyebrow.innerHTML = `<span>${student.dept_code || student.dept}</span><span>Year ${student.year}</span><span>Section ${student.section}</span>`;
     }
