@@ -306,7 +306,7 @@ let liveAutoRefreshInterval = null;
 function startLiveAutoRefresher() {
     if (liveAutoRefreshInterval) clearInterval(liveAutoRefreshInterval);
     
-    // Poll every 5 seconds for live real-time background updates
+    // Poll every 10 seconds for live real-time background updates without disturbing scroll or inputs
     liveAutoRefreshInterval = setInterval(() => {
         const activeScreen = document.querySelector('.screen.active');
         if (!activeScreen) return;
@@ -314,16 +314,12 @@ function startLiveAutoRefresher() {
 
         if (screenId === 'screen-student-dashboard') {
             loadStudentAssignments();
-        } else if (screenId === 'screen-student-detail' && typeof currentStudentAssignment !== 'undefined' && currentStudentAssignment) {
-            openStudentDetail(currentStudentAssignment.assignment_id);
         } else if (screenId === 'screen-faculty-dashboard') {
             loadFacultyAssignments();
-        } else if (screenId === 'screen-faculty-submissions' && typeof currentFacultyAssignment !== 'undefined' && currentFacultyAssignment) {
-            openFacultySubmissions(currentFacultyAssignment.assignment_id);
         } else if (screenId === 'screen-admin-dashboard') {
             loadAdminDashboard();
         }
-    }, 5000);
+    }, 10000);
 }
 
 window.addEventListener('focus', () => {
@@ -331,9 +327,7 @@ window.addEventListener('focus', () => {
     if (!activeScreen) return;
     const screenId = activeScreen.id;
     if (screenId === 'screen-student-dashboard') loadStudentAssignments();
-    if (screenId === 'screen-student-detail' && typeof currentStudentAssignment !== 'undefined' && currentStudentAssignment) openStudentDetail(currentStudentAssignment.assignment_id);
     if (screenId === 'screen-faculty-dashboard') loadFacultyAssignments();
-    if (screenId === 'screen-faculty-submissions' && typeof currentFacultyAssignment !== 'undefined' && currentFacultyAssignment) openFacultySubmissions(currentFacultyAssignment.assignment_id);
     if (screenId === 'screen-admin-dashboard') loadAdminDashboard();
 });
 
