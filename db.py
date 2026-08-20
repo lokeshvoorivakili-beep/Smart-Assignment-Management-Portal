@@ -72,7 +72,8 @@ class DB:
                 with conn.cursor() as cursor:
                     cursor.execute(sql, params)
                     rv = cursor.fetchall()
-                    return (rv[0] if rv else None) if one else rv
+                    result = [dict(r) for r in rv]
+                    return (result[0] if result else None) if one else result
             else:
                 sql_sqlite = sql.replace('%s', '?')
                 cursor = conn.cursor()
