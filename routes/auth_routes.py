@@ -63,7 +63,7 @@ def student_login():
         SELECT s.*, d.code as dept_code, d.department_name 
         FROM students s 
         JOIN departments d ON s.department_id = d.department_id 
-        WHERE s.hall_ticket_no = %s
+        WHERE LOWER(TRIM(s.hall_ticket_no)) = LOWER(TRIM(%s))
     """, (hall_ticket,), one=True)
 
     if not student or not verify_password(password, student['password_hash']):
@@ -178,7 +178,7 @@ def faculty_login():
         SELECT f.*, d.code as dept_code, d.department_name 
         FROM faculty f 
         JOIN departments d ON f.department_id = d.department_id 
-        WHERE f.faculty_code = %s
+        WHERE LOWER(TRIM(f.faculty_code)) = LOWER(TRIM(%s))
     """, (faculty_code,), one=True)
 
     if not fac or not verify_password(password, fac['password_hash']):
