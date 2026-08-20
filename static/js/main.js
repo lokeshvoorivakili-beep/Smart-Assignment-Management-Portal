@@ -300,8 +300,46 @@ function handleSubjectSelectChange(select) {
     }
 }
 
+/* ── REAL-TIME AUTO-REFRESHER ENGINE (NO LOGOUT NEEDED) ── */
+let liveAutoRefreshInterval = null;
+
+function startLiveAutoRefresher() {
+    if (liveAutoRefreshInterval) clearInterval(liveAutoRefreshInterval);
+    
+    // Poll every 5 seconds for live real-time background updates
+    liveAutoRefreshInterval = setInterval(() => {
+        const activeScreen = document.querySelector('.screen.active');
+        if (!activeScreen) return;
+        const screenId = activeScreen.id;
+
+        if (screenId === 'screen-student-dashboard') {
+            loadStudentAssignments();
+        } else if (screenId === 'screen-student-detail' && typeof currentStudentAssignment !== 'undefined' && currentStudentAssignment) {
+            openStudentDetail(currentStudentAssignment.assignment_id);
+        } else if (screenId === 'screen-faculty-dashboard') {
+            loadFacultyAssignments();
+        } else if (screenId === 'screen-faculty-submissions' && typeof currentFacultyAssignment !== 'undefined' && currentFacultyAssignment) {
+            openFacultySubmissions(currentFacultyAssignment.assignment_id);
+        } else if (screenId === 'screen-admin-dashboard') {
+            loadAdminDashboard();
+        }
+    }, 5000);
+}
+
+window.addEventListener('focus', () => {
+    const activeScreen = document.querySelector('.screen.active');
+    if (!activeScreen) return;
+    const screenId = activeScreen.id;
+    if (screenId === 'screen-student-dashboard') loadStudentAssignments();
+    if (screenId === 'screen-student-detail' && typeof currentStudentAssignment !== 'undefined' && currentStudentAssignment) openStudentDetail(currentStudentAssignment.assignment_id);
+    if (screenId === 'screen-faculty-dashboard') loadFacultyAssignments();
+    if (screenId === 'screen-faculty-submissions' && typeof currentFacultyAssignment !== 'undefined' && currentFacultyAssignment) openFacultySubmissions(currentFacultyAssignment.assignment_id);
+    if (screenId === 'screen-admin-dashboard') loadAdminDashboard();
+});
+
 /* ── SESSION CHECK ── */
 async function checkActiveSession() {
+    startLiveAutoRefresher();
     try {
         const sRes = await fetch('/api/student/session');
         const sData = await sRes.json();
@@ -371,6 +409,7 @@ async function handleStudentLogin(e) {
         if (data.success) {
             showToast('Welcome back, ' + data.student.name);
             updateStudentUI(data.student);
+            startLiveAutoRefresher();
             loadStudentAssignments();
             showScreen('screen-student-dashboard');
         } else {
