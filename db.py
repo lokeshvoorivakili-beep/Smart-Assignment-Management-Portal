@@ -135,7 +135,7 @@ def get_db():
                 database_url = database_url.replace("postgres://", "postgresql://", 1)
             if "sslmode" not in database_url:
                 database_url += "?sslmode=require" if "?" not in database_url else "&sslmode=require"
-            conn = psycopg2.connect(database_url, connect_timeout=5, cursor_factory=psycopg2.extras.RealDictCursor)
+            conn = psycopg2.connect(database_url, connect_timeout=2, cursor_factory=psycopg2.extras.RealDictCursor)
             conn.autocommit = True
             return conn, 'postgres'
         except Exception as e:
