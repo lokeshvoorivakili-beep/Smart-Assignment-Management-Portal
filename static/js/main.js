@@ -19,6 +19,7 @@ function showScreen(id) {
     if (target) {
         target.classList.add('active');
         window.scrollTo(0, 0);
+        sessionStorage.setItem('lastActiveScreen', id);
     }
     if (id === 'screen-faculty-create') {
         const deadlineInput = document.getElementById('create-deadline');
@@ -339,8 +340,16 @@ async function checkActiveSession() {
         const sData = await sRes.json();
         if (sData.logged_in) {
             updateStudentUI(sData);
-            loadStudentAssignments();
-            showScreen('screen-student-dashboard');
+            await loadStudentAssignments();
+            const savedScreen = sessionStorage.getItem('lastActiveScreen');
+            const savedStudentAsgnId = sessionStorage.getItem('lastStudentAssignmentId');
+            if (savedScreen === 'screen-student-detail' && savedStudentAsgnId) {
+                await openStudentDetail(savedStudentAsgnId);
+            } else if (savedScreen && document.getElementById(savedScreen)) {
+                showScreen(savedScreen);
+            } else {
+                showScreen('screen-student-dashboard');
+            }
             return;
         }
 
@@ -348,8 +357,16 @@ async function checkActiveSession() {
         const fData = await fRes.json();
         if (fData.logged_in) {
             updateFacultyUI(fData);
-            loadFacultyAssignments();
-            showScreen('screen-faculty-dashboard');
+            await loadFacultyAssignments();
+            const savedScreen = sessionStorage.getItem('lastActiveScreen');
+            const savedFacultyAsgnId = sessionStorage.getItem('lastFacultyAssignmentId');
+            if (savedScreen === 'screen-faculty-submissions' && savedFacultyAsgnId) {
+                await openFacultySubmissions(savedFacultyAsgnId);
+            } else if (savedScreen && document.getElementById(savedScreen)) {
+                showScreen(savedScreen);
+            } else {
+                showScreen('screen-faculty-dashboard');
+            }
             return;
         }
     } catch (e) {
@@ -370,6 +387,7 @@ function showToast(msg) {
 
 /* ── LOGOUT ── */
 async function handleLogout() {
+    sessionStorage.clear();
     await fetch('/api/student/logout', { method: 'POST' });
     await fetch('/api/faculty/logout', { method: 'POST' });
     await fetch('/api/admin/logout', { method: 'POST' });
@@ -555,6 +573,7 @@ async function openStudentDetail(assignmentId) {
 
         const a = data.assignment;
         currentStudentAssignment = a;
+        sessionStorage.setItem('lastStudentAssignmentId', assignmentId);
 
         document.getElementById('detail-subject-tag').textContent = a.subject;
         document.getElementById('detail-subject-tag').className = 'subject-tag subject-tag-' + a.subject;
@@ -852,6 +871,7 @@ async function openFacultySubmissions(assignmentId) {
         const a = data.assignment;
         a.assignment_id = assignmentId;
         currentFacultyAssignment = a;
+        sessionStorage.setItem('lastFacultyAssignmentId', assignmentId);
 
         document.getElementById('fs-eyebrow').innerHTML = `<span>${a.dept_code}</span><span>Year ${a.year}</span><span>Section ${a.section}</span>`;
         document.getElementById('fs-title').textContent = `${a.subject} — ${a.title}`;
