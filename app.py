@@ -3,11 +3,14 @@ from flask import Flask, render_template, session, redirect, url_for, jsonify
 from config import Config
 from db import init_db
 
-# Initialize database tables and seed data
-init_db()
-
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.config.from_object(Config)
+
+# Initialize database tables and seed data safely
+try:
+    init_db()
+except Exception as e:
+    print("Startup init_db notice:", e)
 
 # Ensure upload directories exist
 os.makedirs(Config.ASSIGNMENT_UPLOADS, exist_ok=True)
