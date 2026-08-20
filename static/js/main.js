@@ -55,8 +55,8 @@ function switchTab(el, panelId) {
     if (panel) panel.classList.add('active');
 }
 
-/* JNTUA R23 B.Tech Subjects Data Map for 7 Branches */
-const JNTUA_R23_SUBJECTS = {
+/* JNTUA R24 B.Tech Subjects Data Map for 7 Branches */
+const JNTUA_R24_SUBJECTS = {
   'CSE': {
     '1': [
       "Communicative English", "Linear Algebra & Calculus", "Engineering Physics",
@@ -274,11 +274,11 @@ function updateCreateSubjectDropdown() {
     const year = yearSelect ? yearSelect.value : '3';
     const deptCode = departmentCodeMap[deptId] || 'CSE';
 
-    const subjects = (JNTUA_R23_SUBJECTS[deptCode] && JNTUA_R23_SUBJECTS[deptCode][year]) 
-                     ? JNTUA_R23_SUBJECTS[deptCode][year] 
-                     : (JNTUA_R23_SUBJECTS['CSE'][year] || []);
+    const subjects = (JNTUA_R24_SUBJECTS[deptCode] && JNTUA_R24_SUBJECTS[deptCode][year]) 
+                     ? JNTUA_R24_SUBJECTS[deptCode][year] 
+                     : (JNTUA_R24_SUBJECTS['CSE'][year] || []);
 
-    let html = '<option value="">— Select JNTUA R23 Subject —</option>';
+    let html = '<option value="">— Select JNTUA R24 Subject —</option>';
     subjects.forEach(sub => {
         html += `<option value="${sub}">${sub}</option>`;
     });
