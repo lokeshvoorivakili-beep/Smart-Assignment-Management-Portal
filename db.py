@@ -334,7 +334,10 @@ def init_db():
             """)
             conn.commit()
             
-        seed_db()
+        try:
+            seed_db()
+        except Exception as e:
+            print("Seed DB notice:", e)
     finally:
         conn.close()
 
