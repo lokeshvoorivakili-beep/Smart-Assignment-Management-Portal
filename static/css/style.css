@@ -662,21 +662,22 @@ h1.hero em {
   width: 100%;
 }
 .home-kec-heading {
-  font-family: 'Algerian', 'Cinzel', 'Playfair Display', serif;
-  font-size: clamp(22px, 4.5vw, 32px);
+  font-family: 'Algerian', 'Cinzel Decorative', 'Cinzel', 'Playfair Display', serif;
+  font-size: clamp(16px, 3.8vw, 26px);
   font-weight: 900;
-  letter-spacing: .06em;
+  letter-spacing: .08em;
   text-transform: uppercase;
-  color: #1e90ff;
-  -webkit-text-stroke: 1px #f1d581;
-  text-shadow: 0 0 14px rgba(241, 213, 129, 0.65), 1px 1px 0 #c9a84c, -1px -1px 0 #c9a84c, 1px -1px 0 #c9a84c, -1px 1px 0 #c9a84c;
+  color: #2563eb;
+  -webkit-text-stroke: 0.5px rgba(241, 213, 129, 0.85);
+  text-shadow: 0 0 10px rgba(241, 213, 129, 0.35);
   margin-bottom: 24px;
   display: inline-block;
-  padding: 6px 16px;
-  border: 2px solid #f1d581;
-  border-radius: 8px;
-  background: rgba(30, 144, 255, 0.08);
-  box-shadow: 0 0 15px rgba(241, 213, 129, 0.25);
+  white-space: nowrap;
+  padding: 6px 18px;
+  border: 1px solid rgba(201, 168, 76, 0.45);
+  border-radius: 6px;
+  background: rgba(37, 99, 235, 0.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
 /* ── SECTION TITLE ── */
