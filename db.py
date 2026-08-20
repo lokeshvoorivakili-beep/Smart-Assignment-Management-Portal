@@ -172,10 +172,26 @@ class DB:
         conn, db_type = get_db()
         try:
             if db_type in ('mysql', 'postgres'):
-                with conn.cursor() as cursor:
-                    cursor.execute(sql, params)
-                    rv = cursor.fetchall()
-                    result = [dict(r) for r in rv]
+                try:
+                    with conn.cursor() as cursor:
+                        cursor.execute(sql, params)
+                        rv = cursor.fetchall()
+                        result = [dict(r) for r in rv]
+                        return (result[0] if result else None) if one else result
+                except Exception as pg_err:
+                    print("Primary DB query error, attempting SQLite fallback:", pg_err)
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
+                    conn = sqlite3.connect(Config.SQLITE_DB_PATH)
+                    conn.row_factory = sqlite3.Row
+                    ensure_sqlite_tables(conn)
+                    sql_sqlite = sql.replace('%s', '?')
+                    cursor = conn.cursor()
+                    cursor.execute(sql_sqlite, params)
+                    rows = cursor.fetchall()
+                    result = [dict(r) for r in rows]
                     return (result[0] if result else None) if one else result
             else:
                 sql_sqlite = sql.replace('%s', '?')
@@ -185,7 +201,10 @@ class DB:
                 result = [dict(r) for r in rows]
                 return (result[0] if result else None) if one else result
         finally:
-            conn.close()
+            try:
+                conn.close()
+            except Exception:
+                pass
 
     @staticmethod
     def execute(sql, params=()):
@@ -196,27 +215,42 @@ class DB:
                     cursor.execute(sql, params)
                     return cursor.lastrowid
             elif db_type == 'postgres':
-                with conn.cursor() as cursor:
-                    sql_pg = sql
-                    if 'INSERT INTO' in sql_pg.upper() and 'RETURNING' not in sql_pg.upper():
-                        words = sql_pg.strip().split()
+                try:
+                    with conn.cursor() as cursor:
+                        sql_pg = sql
+                        if 'INSERT INTO' in sql_pg.upper() and 'RETURNING' not in sql_pg.upper():
+                            words = sql_pg.strip().split()
+                            try:
+                                tbl_idx = [i for i, w in enumerate(words) if w.upper() == 'INTO'][0] + 1
+                                tbl_name = words[tbl_idx].split('(')[0]
+                                id_col = tbl_name.rstrip('s') + '_id'
+                                if tbl_name.lower() == 'faculty':
+                                    id_col = 'faculty_id'
+                                elif tbl_name.lower() == 'activity_logs':
+                                    id_col = 'log_id'
+                                sql_pg += f" RETURNING {id_col}"
+                            except Exception:
+                                pass
+                        cursor.execute(sql_pg, params)
                         try:
-                            tbl_idx = [i for i, w in enumerate(words) if w.upper() == 'INTO'][0] + 1
-                            tbl_name = words[tbl_idx].split('(')[0]
-                            id_col = tbl_name.rstrip('s') + '_id'
-                            if tbl_name.lower() == 'faculty':
-                                id_col = 'faculty_id'
-                            elif tbl_name.lower() == 'activity_logs':
-                                id_col = 'log_id'
-                            sql_pg += f" RETURNING {id_col}"
+                            res = cursor.fetchone()
+                            return res[list(res.keys())[0]] if res else None
                         except Exception:
-                            pass
-                    cursor.execute(sql_pg, params)
+                            return None
+                except Exception as pg_err:
+                    print("Primary DB execute error, attempting SQLite fallback:", pg_err)
                     try:
-                        res = cursor.fetchone()
-                        return res[list(res.keys())[0]] if res else None
+                        conn.close()
                     except Exception:
-                        return None
+                        pass
+                    conn = sqlite3.connect(Config.SQLITE_DB_PATH)
+                    conn.row_factory = sqlite3.Row
+                    ensure_sqlite_tables(conn)
+                    sql_sqlite = sql.replace('%s', '?')
+                    cursor = conn.cursor()
+                    cursor.execute(sql_sqlite, params)
+                    conn.commit()
+                    return cursor.lastrowid
             else:
                 sql_sqlite = sql.replace('%s', '?')
                 cursor = conn.cursor()
@@ -224,7 +258,10 @@ class DB:
                 conn.commit()
                 return cursor.lastrowid
         finally:
-            conn.close()
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 def init_db():
     """Initializes tables and seeds default data if tables do not exist."""
