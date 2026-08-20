@@ -22,6 +22,106 @@ def is_mysql_available():
     except (socket.timeout, ConnectionRefusedError, OSError):
         return False
 
+def ensure_sqlite_tables(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='departments';")
+        if not cursor.fetchone():
+            cursor.executescript("""
+            CREATE TABLE IF NOT EXISTS departments (
+                department_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                code TEXT UNIQUE NOT NULL,
+                department_name TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS admin (
+                admin_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                email TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS students (
+                student_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                hall_ticket_no TEXT UNIQUE NOT NULL,
+                first_name TEXT NOT NULL,
+                last_name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                phone TEXT,
+                password_hash TEXT NOT NULL,
+                department_id INTEGER NOT NULL,
+                year INTEGER NOT NULL,
+                section TEXT NOT NULL,
+                approval_status TEXT DEFAULT 'Pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (department_id) REFERENCES departments(department_id)
+            );
+            CREATE TABLE IF NOT EXISTS faculty (
+                faculty_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                faculty_code TEXT UNIQUE NOT NULL,
+                first_name TEXT NOT NULL,
+                last_name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                phone TEXT,
+                password_hash TEXT NOT NULL,
+                department_id INTEGER NOT NULL,
+                approval_status TEXT DEFAULT 'Pending',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (department_id) REFERENCES departments(department_id)
+            );
+            CREATE TABLE IF NOT EXISTS assignments (
+                assignment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                faculty_id INTEGER NOT NULL,
+                department_id INTEGER NOT NULL,
+                year INTEGER NOT NULL,
+                section TEXT NOT NULL,
+                subject TEXT NOT NULL,
+                title TEXT NOT NULL,
+                description TEXT NOT NULL,
+                instruction_file TEXT,
+                deadline TIMESTAMP NOT NULL,
+                maximum_marks INTEGER NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id),
+                FOREIGN KEY (department_id) REFERENCES departments(department_id)
+            );
+            CREATE TABLE IF NOT EXISTS submissions (
+                submission_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                assignment_id INTEGER NOT NULL,
+                student_id INTEGER NOT NULL,
+                uploaded_file TEXT NOT NULL,
+                original_filename TEXT NOT NULL,
+                submitted_at TIMESTAMP NOT NULL,
+                marks INTEGER DEFAULT NULL,
+                feedback TEXT DEFAULT NULL,
+                similarity_score REAL DEFAULT 0.0,
+                submission_status TEXT DEFAULT 'Submitted',
+                graded_at TIMESTAMP DEFAULT NULL,
+                FOREIGN KEY (assignment_id) REFERENCES assignments(assignment_id),
+                FOREIGN KEY (student_id) REFERENCES students(student_id)
+            );
+            CREATE TABLE IF NOT EXISTS notifications (
+                notification_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_role TEXT NOT NULL,
+                user_id INTEGER DEFAULT NULL,
+                title TEXT NOT NULL,
+                message TEXT NOT NULL,
+                is_read INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS activity_logs (
+                log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT NOT NULL,
+                user_name TEXT NOT NULL,
+                user_role TEXT NOT NULL,
+                description TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """)
+            conn.commit()
+    except Exception as e:
+        print("SQLite auto-table creation notice:", e)
+
 def get_db():
     """
     Attempts Cloud PostgreSQL via DATABASE_URL first.
@@ -63,6 +163,7 @@ def get_db():
     os.makedirs(os.path.dirname(Config.SQLITE_DB_PATH), exist_ok=True)
     conn = sqlite3.connect(Config.SQLITE_DB_PATH)
     conn.row_factory = sqlite3.Row
+    ensure_sqlite_tables(conn)
     return conn, 'sqlite'
 
 class DB:
