@@ -661,14 +661,23 @@ h1.hero em {
   margin: 0 auto;
   width: 100%;
 }
-.home-meta {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 10px; font-weight: 600;
-  letter-spacing: .18em; text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 28px;
+.home-kec-heading {
+  font-family: 'Algerian', 'Cinzel', 'Playfair Display', serif;
+  font-size: clamp(22px, 4.5vw, 32px);
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #1e90ff;
+  -webkit-text-stroke: 1px #f1d581;
+  text-shadow: 0 0 14px rgba(241, 213, 129, 0.65), 1px 1px 0 #c9a84c, -1px -1px 0 #c9a84c, 1px -1px 0 #c9a84c, -1px 1px 0 #c9a84c;
+  margin-bottom: 24px;
+  display: inline-block;
+  padding: 6px 16px;
+  border: 2px solid #f1d581;
+  border-radius: 8px;
+  background: rgba(30, 144, 255, 0.08);
+  box-shadow: 0 0 15px rgba(241, 213, 129, 0.25);
 }
-.home-meta span + span::before { content: ' · '; }
 
 /* ── SECTION TITLE ── */
 .section-title {
