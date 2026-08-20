@@ -136,6 +136,101 @@ def init_db():
                         stmt = statement.strip()
                         if stmt:
                             cursor.execute(stmt)
+        elif db_type == 'postgres':
+            cursor = conn.cursor()
+            pg_statements = [
+                """CREATE TABLE IF NOT EXISTS departments (
+                    department_id SERIAL PRIMARY KEY,
+                    code VARCHAR(50) UNIQUE NOT NULL,
+                    department_name VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );""",
+                """CREATE TABLE IF NOT EXISTS admin (
+                    admin_id SERIAL PRIMARY KEY,
+                    username VARCHAR(100) UNIQUE NOT NULL,
+                    password_hash VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );""",
+                """CREATE TABLE IF NOT EXISTS students (
+                    student_id SERIAL PRIMARY KEY,
+                    hall_ticket_no VARCHAR(100) UNIQUE NOT NULL,
+                    first_name VARCHAR(100) NOT NULL,
+                    last_name VARCHAR(100) NOT NULL,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    phone VARCHAR(50),
+                    password_hash VARCHAR(255) NOT NULL,
+                    department_id INT NOT NULL,
+                    year INT NOT NULL,
+                    section VARCHAR(50) NOT NULL,
+                    approval_status VARCHAR(50) DEFAULT 'Pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (department_id) REFERENCES departments(department_id)
+                );""",
+                """CREATE TABLE IF NOT EXISTS faculty (
+                    faculty_id SERIAL PRIMARY KEY,
+                    faculty_code VARCHAR(100) UNIQUE NOT NULL,
+                    first_name VARCHAR(100) NOT NULL,
+                    last_name VARCHAR(100) NOT NULL,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    phone VARCHAR(50),
+                    password_hash VARCHAR(255) NOT NULL,
+                    department_id INT NOT NULL,
+                    approval_status VARCHAR(50) DEFAULT 'Pending',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (department_id) REFERENCES departments(department_id)
+                );""",
+                """CREATE TABLE IF NOT EXISTS assignments (
+                    assignment_id SERIAL PRIMARY KEY,
+                    faculty_id INT NOT NULL,
+                    department_id INT NOT NULL,
+                    year INT NOT NULL,
+                    section VARCHAR(50) NOT NULL,
+                    subject VARCHAR(255) NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    description TEXT NOT NULL,
+                    instruction_file VARCHAR(255),
+                    deadline TIMESTAMP NOT NULL,
+                    maximum_marks INT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (faculty_id) REFERENCES faculty(faculty_id),
+                    FOREIGN KEY (department_id) REFERENCES departments(department_id)
+                );""",
+                """CREATE TABLE IF NOT EXISTS submissions (
+                    submission_id SERIAL PRIMARY KEY,
+                    assignment_id INT NOT NULL,
+                    student_id INT NOT NULL,
+                    uploaded_file VARCHAR(255) NOT NULL,
+                    original_filename VARCHAR(255) NOT NULL,
+                    submitted_at TIMESTAMP NOT NULL,
+                    marks INT DEFAULT NULL,
+                    feedback TEXT DEFAULT NULL,
+                    similarity_score REAL DEFAULT 0.0,
+                    submission_status VARCHAR(50) DEFAULT 'Submitted',
+                    graded_at TIMESTAMP DEFAULT NULL,
+                    FOREIGN KEY (assignment_id) REFERENCES assignments(assignment_id),
+                    FOREIGN KEY (student_id) REFERENCES students(student_id)
+                );""",
+                """CREATE TABLE IF NOT EXISTS notifications (
+                    notification_id SERIAL PRIMARY KEY,
+                    user_role VARCHAR(50) NOT NULL,
+                    user_id INT DEFAULT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    message TEXT NOT NULL,
+                    is_read INT DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );""",
+                """CREATE TABLE IF NOT EXISTS activity_logs (
+                    log_id SERIAL PRIMARY KEY,
+                    event_type VARCHAR(100) NOT NULL,
+                    user_name VARCHAR(255) NOT NULL,
+                    user_role VARCHAR(50) NOT NULL,
+                    description TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );"""
+            ]
+            for stmt in pg_statements:
+                cursor.execute(stmt)
         else:
             cursor = conn.cursor()
             cursor.executescript("""
